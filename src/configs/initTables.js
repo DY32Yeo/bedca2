@@ -36,6 +36,8 @@ DROP TABLE IF EXISTS Level;
 CREATE TABLE User (
 user_id INT AUTO_INCREMENT PRIMARY KEY,
 username VARCHAR(255) NOT NULL,
+email TEXT NOT NULL,
+password TEXT NOT NULL,
 points INT DEFAULT 0,
 created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -85,16 +87,16 @@ level_name VARCHAR(255) NOT NULL,
 experience_required INT NOT NULL
 );
 
-INSERT INTO User (username, points) VALUES
-('Captain Rex', 501),
-('Commander Cody', 212),
-('Obi-Wan Kenobi', 100),
-('Anakin Skywalker', 150),
-('Yoda', 80),
-('Mandolorian', 123),
-('socuser1', 0),
-('socuser2', 0),
-('socuser3', 0);
+INSERT INTO User (username, email, password, points) VALUES
+('Captain Rex', 'rex@gmail.com', '${hash}' 501),
+('Commander Cody', 'cody@gmail.com', '${hash}', 212),
+('Obi-Wan Kenobi', 'obi@gmail.com', '${hash}', 100),
+('Anakin Skywalker', 'ani@gmail.com', '${hash}', 150),
+('Yoda', 'yoda@gmail.com', '${hash}', 80),
+('Mandolorian', 'mando@gmail.com', '${hash}', 123),
+('socuser1', 'dit@gmail.com', '${hash}', 0),
+('socuser2', 'dcdf@gmail.com', '${hash}', 0),
+('socuser3', 'daaa@gmail.com', '${hash}',0);
 
 INSERT INTO WellnessChallenge (creator_id, description, points) VALUES
 (1, 'Sleep like a boss - Get 7+ hours of sleep', 10),

@@ -188,3 +188,42 @@ module.exports.getLeaderboard = (req, res, next) =>
 
     userModel.selectRank(callback);
 }
+
+module.exports.login = (req, res, next) => {
+    try { 
+        const requiredFields = ['username', 'password'];
+
+        for (const field of requiredFields) {
+            if (req.body[field] === undefined || req.body[field] === "") {
+                res.status(400).json({ message: `${field} is undefined or empty` });
+                return;
+            }
+        };
+
+        const data = {
+            username: req.body.username,
+            password: res.locals.hash
+        };
+
+        const callback = (error, results) => {
+            if(error){
+                console.error("Error login callback: ", error);
+                res.status(500).json(error);
+            } else {
+                if(results.length == 0){
+                    res.status(404).json({message: "User not found"}); 
+                } else {
+                    res.locals.userId = results[0].id
+                    res.locals.hash = results[0].password
+                    next();
+                }
+            }
+        };
+
+        userModel.login(data, callback);
+
+    } catch (error) {
+        console.error("Error login: ", error);
+        res.status(500).json(error);
+    }
+}
