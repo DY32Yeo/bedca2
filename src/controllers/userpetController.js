@@ -174,8 +174,16 @@ module.exports.performPetAction = (req, res, next) =>
 
     // only wrote 1 if since i am going to use tenary operator from FOP
     if (action.action_type == "feed") {
-        newHunger = 100;
+        newHunger = Math.min(100, Math.max(0, userpet.hunger + 20));
+    } else if (action.action_type == "train") {
+        if (userpet.hunger < 10) {
+            return res.status(400).json({
+                message: "Pet is too hungry to train"
+            });
+        }
+        newHunger = Math.max(0, userpet.hunger - 20);
     }
+
 
     // 2 different data for 2 different callback for 2 different model
     const updateUserData = {

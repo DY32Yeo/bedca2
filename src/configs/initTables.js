@@ -88,7 +88,7 @@ experience_required INT NOT NULL
 );
 
 INSERT INTO User (username, email, password, points) VALUES
-('Captain Rex', 'rex@gmail.com', '${hash}' 501),
+('Captain Rex', 'rex@gmail.com', '${hash}', 501),
 ('Commander Cody', 'cody@gmail.com', '${hash}', 212),
 ('Obi-Wan Kenobi', 'obi@gmail.com', '${hash}', 100),
 ('Anakin Skywalker', 'ani@gmail.com', '${hash}', 150),

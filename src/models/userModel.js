@@ -64,7 +64,6 @@ module.exports.updatePointsById = (data, callback) =>
     pool.query(SQLSTATMENT, VALUES, callback);
 }
 
-
 module.exports.selectByIdPet = (data, callback) =>
 {
     const SQLSTATMENT = `
@@ -95,3 +94,41 @@ module.exports.selectRank = (callback) =>
     `;
     pool.query(SQLSTATMENT, callback);
 }
+
+module.exports.login = (data, callback) => {
+
+    const SQLSTATEMENT = `
+        SELECT *
+        FROM User
+        WHERE username = ?;
+    `;
+
+    VALUES = [data.username];
+
+    pool.query(SQLSTATEMENT, VALUES, callback);
+}
+
+module.exports.readUserByEmailAndUsername = (data, callback) => {
+
+    const SQLSTATEMENT = `
+        SELECT user_id, email, username
+        From User
+        where email = ? OR username = ?;
+    `;
+
+    VALUES = [data.email, data.username];
+
+    pool.query(SQLSTATEMENT, VALUES, callback);
+}
+
+module.exports.register = (data, callback) => {
+
+    const SQLSTATEMENT = `
+        INSERT INTO User (username, email, password)
+        VALUES (?, ?, ?);
+    `;
+
+    VALUES = [data.username, data.email, data.password];
+
+    pool.query(SQLSTATEMENT, VALUES, callback);
+}   

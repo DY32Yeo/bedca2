@@ -202,7 +202,7 @@ module.exports.login = (req, res, next) => {
 
         const data = {
             username: req.body.username,
-            password: res.locals.hash
+            password: res.locals.hash    
         };
 
         const callback = (error, results) => {
@@ -226,4 +226,68 @@ module.exports.login = (req, res, next) => {
         console.error("Error login: ", error);
         res.status(500).json(error);
     }
+}
+
+module.exports.checkUsernameOrEmailExist = (req, res, next) => {
+    try {
+        const requiredFields = ['username', 'email'];
+
+        for (const field of requiredFields) {
+            if (req.body[field] === undefined || req.body[field] === "") {
+                res.status(400).json({ message: `${field} is undefined or empty` });
+                return;
+            }
+        };
+    
+        const data = {
+            email: req.body.email,
+            username: req.body.username
+        };
+
+        const callback = (error, results) => {
+            if(error){
+                console.error("Error readUserByEmailAndUsername callback: ", error);
+                res.status(500).json(error);
+            } else {
+                if(results[1].length != 0 || results[0].length != 0){
+                    res.status(409).json({message: "Username or email already exists"});
+                } else {
+                    next();
+                }
+            }
+        };
+
+        userModel.readUserByEmailAndUsername(data, callback);
+
+    } catch (error) {
+        console.error("Error readUserByEmailAndUsername: ", error);
+        res.status(500).json(error);
+    }
+
+}
+
+module.exports.register = (req, res, next) => {
+        try { 
+            const data = {
+                email: req.body.email,
+                username: req.body.username,
+                password: res.locals.hash
+            };
+    
+            const callback = (error, results) => {
+                if(error){
+                    console.error("Error register callback: ", error);
+                    res.status(500).json(error);
+                } else {
+                    res.locals.userId = results.insertId;
+                    next();
+                }
+            };
+    
+            userModel.register(data, callback);
+    
+        } catch (error) {
+            console.error("Error register: ", error);
+            res.status(500).json(error);
+        }
 }
