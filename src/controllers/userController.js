@@ -145,7 +145,7 @@ module.exports.checkUserById = (req, res, next) =>
 {
 
     const data = {
-        user_id: req.body.user_id
+        user_id: res.locals.userId
     }
 
     const callback = (error, results, fields) => {
@@ -213,7 +213,7 @@ module.exports.login = (req, res, next) => {
                 if(results.length == 0){
                     res.status(404).json({message: "User not found"}); 
                 } else {
-                    res.locals.userId = results[0].id
+                    res.locals.userId = results[0].user_id
                     res.locals.hash = results[0].password
                     next();
                 }
@@ -249,7 +249,7 @@ module.exports.checkUsernameOrEmailExist = (req, res, next) => {
                 console.error("Error readUserByEmailAndUsername callback: ", error);
                 res.status(500).json(error);
             } else {
-                if(results[1].length != 0 || results[0].length != 0){
+                if(results.length != 0){
                     res.status(409).json({message: "Username or email already exists"});
                 } else {
                     next();

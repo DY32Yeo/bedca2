@@ -130,8 +130,10 @@ module.exports.checkUserPetById = (req, res, next) =>
 {
 
     const data = {
-        userpet_id: req.params.userpet_id
+        userpet_id: req.params.userpet_id,
+        user_id: res.locals.userId
     }
+    
 
     const callback = (error, results, fields) => {
         if (error) {
@@ -145,6 +147,7 @@ module.exports.checkUserPetById = (req, res, next) =>
                 });
             }
         }
+        
         req.userpet = results[0];
         next();
 
@@ -184,6 +187,7 @@ module.exports.performPetAction = (req, res, next) =>
         newHunger = Math.max(0, userpet.hunger - 20);
     }
 
+    
 
     // 2 different data for 2 different callback for 2 different model
     const updateUserData = {
@@ -198,20 +202,26 @@ module.exports.performPetAction = (req, res, next) =>
         hunger: newHunger
     }
 
+    req.newExperience = newExperience;
+    req.newHunger = newHunger;
+    req.newPoints = updateUserData.points;
+
+
     const updatePetCallback = (error, results, fields) => {
         if (error) {
             console.error("Error updatePetStats:", error);
             res.status(500).json(error);
         } else {
-            res.status(201).json({
-                message: action.action_type == "train" 
-                ? "Pet trained successfully"
-                : "Pet fed successfully",
-                userpet_id: userpet.userpet_id,
-                experience: newExperience,
-                hunger: newHunger,
-                points: updateUserData.points
-            });
+            // res.status(201).json({
+            //     message: action.action_type == "train" 
+            //     ? "Pet trained successfully"
+            //     : "Pet fed successfully",
+            //     userpet_id: userpet.userpet_id,
+            //     experience: newExperience,
+            //     hunger: newHunger,
+            //     points: updateUserData.points
+            // });
+            next();
         }
     }
 

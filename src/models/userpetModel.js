@@ -40,9 +40,9 @@ module.exports.checkById = (data, callback) =>
 {
     const SQLSTATMENT = `
     SELECT * FROM UserPet
-    WHERE userpet_id = ?;
+    WHERE userpet_id = ? AND user_id = ?;
     `;
-    const VALUES = [data.userpet_id];
+    const VALUES = [data.userpet_id, data.user_id];
 
     pool.query(SQLSTATMENT, VALUES, callback);
 }
@@ -59,3 +59,14 @@ module.exports.updateStatsById = (data, callback) =>
     pool.query(SQLSTATMENT, VALUES, callback);
 }
 
+module.exports.updateLevelById = (data, callback) =>
+{
+    const SQLSTATMENT = `
+    UPDATE UserPet 
+    SET level_id = ?
+    WHERE userpet_id = ?;
+    `;
+    const VALUES = [data.level_id, data.userpet_id];
+
+    pool.query(SQLSTATMENT, VALUES, callback);
+}
