@@ -3,7 +3,8 @@ const pool = require('../services/db');
 module.exports.selectAll = (callback) =>
 {
     const SQLSTATMENT = `
-    SELECT * FROM User;
+    SELECT *
+    FROM User;
     `;
 
     pool.query(SQLSTATMENT, callback);
@@ -23,7 +24,8 @@ module.exports.insertSingle = (data, callback) =>
 module.exports.selectUser = (callback) =>
 {
     const SQLSTATMENT = `
-    SELECT * FROM User;
+    SELECT user_id, username, points, created_on
+    FROM User;
     `;
 
     pool.query(SQLSTATMENT, callback);
@@ -32,7 +34,8 @@ module.exports.selectUser = (callback) =>
 module.exports.selectById = (data, callback) =>
 {
     const SQLSTATMENT = `
-    SELECT * FROM User
+    SELECT user_id, username, points, created_on
+    FROM User
     WHERE user_id = ?;
     `;
     const VALUES = [data.user_id];

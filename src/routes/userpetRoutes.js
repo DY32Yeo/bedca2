@@ -32,6 +32,7 @@ router.put('/:userpet_id', userpetController.updatePetNameById);
 // 4. user can adopt the pet they want, depends if the user_id, pet_id exist and lastly if they have sufficient points
 router.post(
     '/adopt', 
+    jwtMiddleware.verifyToken, 
     userController.checkUserById, 
     petController.checkPetById, 
     userpetController.adoptPet

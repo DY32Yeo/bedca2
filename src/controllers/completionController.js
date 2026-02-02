@@ -11,12 +11,12 @@ module.exports.createNewCompletion = (req, res, next) =>
     const updateData = {
        user_id: user.user_id,
        username: user.username,
-       points: user.points + challenge.points
+       points: challenge.points
     };
 
     const data = {
         challenge_id: req.params.challenge_id,
-        user_id: req.body.user_id,
+        user_id: user.user_id, // From JWT verifyToken
         details: req.body.details
     }
 
@@ -42,7 +42,7 @@ module.exports.createNewCompletion = (req, res, next) =>
                     challenge_id: data.challenge_id,
                     user_id: data.user_id,
                     details: data.details,
-                    points: updateData.points
+                    points_earned: updateData.points
                 });
             } 
     } 

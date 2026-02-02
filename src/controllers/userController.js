@@ -116,7 +116,7 @@ module.exports.updateUserById = (req, res, next) =>
     const data = {
         user_id: req.params.user_id,
         username: req.body.username,
-        points: req.body.points
+        // points: req.body.points
     }
 
     const callback = (error, results, fields) => {
@@ -133,7 +133,7 @@ module.exports.updateUserById = (req, res, next) =>
             else res.status(200).json({
                 user_id: data.user_id,
                 username: data.username,
-                points: data.points
+                // points: data.points
             });
         }
     }
