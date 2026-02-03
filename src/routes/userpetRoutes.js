@@ -4,7 +4,6 @@ const router = express.Router();
 const userController = require('../controllers/userController');
 const petController = require('../controllers/petController');
 const userpetController = require('../controllers/userpetController');
-const actionController = require('../controllers/actionController');
 const levelController = require('../controllers/levelController');
 const jwtMiddleware = require('../middlewares/jwtMiddleware');
 
@@ -12,19 +11,17 @@ const jwtMiddleware = require('../middlewares/jwtMiddleware');
 // 6. user can choose to either feed their pet or train their pet by using their userpet_id, user_id and also providing the action_id 
 // which then allow the user to gain xp for their pet or decrease pet hunger
 router.post(
-    "/:userpet_id/action", 
+    "/:userpet_id/feed", 
     jwtMiddleware.verifyToken, 
     userpetController.checkUserPetById, 
-    userController.checkUserById,
-    actionController.checkActionById, 
-    userpetController.performPetAction,
+    userpetController.feedPet,
     levelController.levelUpPet
 );
 
-// 3.
+// 3. get user's pets
 router.get('/:user_id', userpetController.getUserPetById);
 
-// 5. user can change their petname by using their userpet_id and user_id
+// 5. user can change their petname 
 router.put('/:userpet_id', userpetController.updatePetNameById);
 
 

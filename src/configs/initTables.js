@@ -29,9 +29,9 @@ DROP TABLE IF EXISTS Pet;
 
 DROP TABLE IF EXISTS UserPet;
 
-DROP TABLE IF EXISTS PetAction;
-
 DROP TABLE IF EXISTS Level;
+
+DROP TABLE IF EXISTS Food;
 
 CREATE TABLE User (
 user_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -53,7 +53,8 @@ CREATE TABLE UserCompletion (
 completion_id INT AUTO_INCREMENT PRIMARY KEY,
 challenge_id INT NOT NULL,
 user_id INT NOT NULL,
-details TEXT
+details TEXT,
+completion_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE Pet (
@@ -73,18 +74,18 @@ hunger INT DEFAULT 100,
 adopted_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE PetAction (
-action_id INT AUTO_INCREMENT PRIMARY KEY,
-action_name VARCHAR(255) NOT NULL,
-action_type ENUM('feed', 'train') NOT NULL,
-unlock_cost INT NOT NULL,
-experience_gained INT NOT NULL
-);
-
 CREATE TABLE Level (
 level_id INT AUTO_INCREMENT PRIMARY KEY,
 level_name VARCHAR(255) NOT NULL,
 experience_required INT NOT NULL
+);
+
+CREATE TABLE Food (
+food_id INT AUTO_INCREMENT PRIMARY KEY,
+food_name VARCHAR(255) NOT NULL,
+cost INT NOT NULL,
+hunger_restore INT NOT NULL,
+xp_gain INT NOT NULL
 );
 
 INSERT INTO User (username, email, password, points) VALUES
@@ -124,25 +125,31 @@ INSERT INTO Pet (species, adopt_cost) VALUES
 ('Parrot', 150),
 ('Seal', 200);
 
-INSERT INTO UserPet (user_id, pet_id, pet_name, level_id, experience, hunger) VALUES 
-(1, 1, 'Rex', 5, 520, 80),
-(1, 2, 'Fives', 1, 0, 100),
-(2, 2, 'Cody', 4, 250, 80),
-(3, 1, 'Kenobi', 3, 150, 100),
-(4, 3, 'Darth Vader', 4, 320, 70),
-(5, 2, 'Jedi', 2, 80, 95),
-(6, 1, 'Grogu', 3, 180, 90);
-
-INSERT INTO PetAction (action_name, action_type, unlock_cost, experience_gained) VALUES
-('Feed Pet', 'feed', 5, 20),
-('Train Pet', 'train', 10, 30);
+INSERT INTO UserPet (user_id, pet_id, pet_name, level_id, experience) VALUES 
+(1, 1, 'Rex', 5, 520),
+(1, 2, 'Fives', 1, 0),
+(2, 2, 'Cody', 4, 250),
+(3, 1, 'Kenobi', 3, 150),
+(4, 3, 'Darth Vader', 4, 320),
+(5, 2, 'Jedi', 2, 80),
+(6, 1, 'Grogu', 3, 180);
 
 INSERT INTO Level (level_name, experience_required) VALUES
 ('Newborn', 0),
 ('Growing', 100),
 ('Teen', 200),
 ('Adult', 400),
-('Expert', 800);
+('Expert', 800),
+('Master', 1500);
+
+INSERT INTO Food (food_name, cost, hunger_restore, xp_gain) VALUES
+('Milk', 10, 20, 15),
+('Kibble', 15, 25, 20),
+('Chicken', 25, 35, 30),
+('Beef', 35, 45, 40),
+('Tuna', 50, 60, 50),
+('Salmon', 75, 80, 70),
+('Super Special Treat', 150, 100, 100);
 `;
 
     pool.query(SQLSTATEMENT, callback);

@@ -7,7 +7,7 @@ const completionRoutes = require('./completionRoutes');
 const petRoutes = require('./petRoutes');
 const userpetRoutes = require('./userpetRoutes');
 const levelRoutes = require('./levelRoutes')
-const actionRoutes = require('./actionRoutes')
+
 
 // encryption / middleware
 const userController = require('../controllers/userController');
@@ -21,7 +21,7 @@ router.use("/completion", completionRoutes);
 router.use("/pet", petRoutes);
 router.use("/userpet", userpetRoutes);
 router.use("/level", levelRoutes);
-router.use("/action", actionRoutes);
+
 
 
 router.post("/login", userController.login, 
