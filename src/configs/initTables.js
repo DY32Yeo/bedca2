@@ -33,6 +33,8 @@ DROP TABLE IF EXISTS Level;
 
 DROP TABLE IF EXISTS Food;
 
+DROP TABLE IF EXISTS Inventory;
+
 CREATE TABLE User (
 user_id INT AUTO_INCREMENT PRIMARY KEY,
 username VARCHAR(255) NOT NULL,
@@ -86,6 +88,13 @@ food_name VARCHAR(255) NOT NULL,
 cost INT NOT NULL,
 hunger_restore INT NOT NULL,
 xp_gain INT NOT NULL
+);
+
+CREATE TABLE Inventory (
+inventory_id INT AUTO_INCREMENT PRIMARY KEY,
+user_id INT NOT NULL,
+food_id INT NOT NULL,
+quantity INT DEFAULT 0
 );
 
 INSERT INTO User (username, email, password, points) VALUES
@@ -150,7 +159,14 @@ INSERT INTO Food (food_name, cost, hunger_restore, xp_gain) VALUES
 ('Tuna', 50, 60, 50),
 ('Salmon', 75, 80, 70),
 ('Super Special Treat', 150, 100, 100);
-`;
+
+INSERT INTO Inventory (user_id, food_id, quantity) VALUES
+(1, 1, 3),
+(1, 2, 2),
+(2, 1, 1),
+(3, 3, 2),
+(4, 1, 5);
+`; 
 
     pool.query(SQLSTATEMENT, callback);
   }

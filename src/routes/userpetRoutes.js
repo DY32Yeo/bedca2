@@ -14,7 +14,7 @@ router.post(
     "/:userpet_id/feed", 
     jwtMiddleware.verifyToken, 
     userpetController.checkUserPetById, 
-    userpetController.feedPet,
+    // userpetController.feedPet,
     levelController.levelUpPet
 );
 
