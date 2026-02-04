@@ -1,6 +1,7 @@
 const inventoryModel = require("../models/inventoryModel.js");
 const userModel = require("../models/userModel.js");
 const userpetModel = require("../models/userpetModel.js");
+const levelModel = require("../models/levelModel.js");
 
 
 module.exports.getUserInventory = (req, res, next) =>
@@ -96,21 +97,14 @@ module.exports.buyFood = (req, res, next) =>
 
 module.exports.feedPet = (req, res, next) =>
 {
-    const userpet = req.userpet;
+    const user = req.user;
+    const pet = req.pet;
     const food = req.food;
 
-    const data = {
-        user_id: req.user.user_id,
-        userpet_id: req.params.userpet_id,
-        food_id: food.food_id,
-        quantity: req.body.quantity || 1
-    }
-
-    // Check if user has this food in inventory
-    // First, check inventory
+    // Check food in inventory
     inventoryModel.checkUserHasFood({
-        user_id: data.user_id,
-        food_id: data.food_id
+        user_id: user.user_id,
+        food_id: food.food_id
     }, (error, inventoryResults) => {
         if (error) {
             console.error("Error checkUserHasFood:", error);
@@ -118,65 +112,95 @@ module.exports.feedPet = (req, res, next) =>
             return;
         }
 
-        if (inventoryResults.length == 0 || inventoryResults[0].quantity < data.quantity) {
+        if (inventoryResults.length == 0) {
             res.status(400).json({ 
-                message: "Not enough of this food in your inventory" 
+                message: "No food in inventory" 
             });
             return;
         }
 
-        const totalHungerRestore = food.hunger_restore * data.quantity;
-        const totalXpGain = food.xp_gain * data.quantity;
-
-        const newHunger = Math.min(100, userpet.hunger + totalHungerRestore);
-        const newExperience = userpet.experience + totalXpGain;
-
-        const updatePetData = {
-            userpet_id: data.userpet_id,
-            experience: newExperience,
-            hunger: newHunger
-        };
-
-        // Used to update pet stats after food is used
-        const updateCallback = (error, results, fields) => {
-            if (error) {
-                console.error("Error useFromInventory:", error);
-                res.status(500).json(error);
-                return;
-            } 
-            
-            // Clean up inventory (remove items with 0 quantity)
-            inventoryModel.cleanupInventory({ user_id: data.user_id }, (error) => {
-                if (error) {
-                    console.error("Error cleanupInventory:", error);
-                }
+        if (inventoryResults[0].quantity < (req.body.quantity || 1)) {
+            res.status(400).json({ 
+                message: "Not enough food" 
             });
-
-            // Update pet stats
-            userpetModel.updateStatsById(updatePetData, callback);
+            return;
         }
-        
-        const callback = (error, results, fields) => {
-            if (error) {
-                console.error("Error updateStatsById:", error);
-                res.status(500).json(error);
-            } 
-            else 
-            {
-                res.status(200).json({
-                    message: "Pet fed successfully!",
-                    pet_name: userpet.pet_name,
-                    food_used: food.food_name,
-                    quantity_used: data.quantity,
-                    hunger_restored: totalHungerRestore,
-                    xp_gained: totalXpGain,
-                    new_hunger: newHunger,
-                    new_experience: newExperience
-                });
+
+        const newHunger = Math.min(100, pet.hunger + food.hunger_restore);
+        const newExperience = pet.experience + food.xp_gain;
+
+        // Use food
+        inventoryModel.useFromInventory({
+            user_id: user.user_id,
+            food_id: food.food_id,
+            quantity: req.body.quantity || 1
+        }, (inventoryError) => {
+            if (inventoryError) {
+                console.error("Error useFromInventory:", inventoryError);
+                res.status(500).json(inventoryError);
+                return;
             }
-        } 
-           
-        // Start the transaction by using food from inventory
-        inventoryModel.useFromInventory(data, updateCallback);
-    }); 
+
+            // Update pet
+            userpetModel.updateStatsById({
+                userpet_id: pet.userpet_id,
+                experience: newExperience,
+                hunger: newHunger
+            }, (petError) => {
+                if (petError) {
+                    console.error("Error updateStatsById:", petError);
+                    res.status(500).json(petError);
+                    return;
+                }
+
+                res.status(200).json({
+                    message: "Pet fed!",
+                    pet: pet.pet_name,
+                    hunger: newHunger,
+                    xp: newExperience
+                });
+            });
+        });
+    });
+}
+
+module.exports.levelUpPet = (req, res, next) =>
+{
+    const pet = req.pet;
+
+    // Check next level
+    levelModel.selectNextLevel({ experience: pet.experience }, (error, results) => {
+        if (error) {
+            console.error("Error selectNextLevel:", error);
+            res.status(500).json(error);
+            return;
+        }
+
+        if (results.length == 0) {
+            res.status(400).json({
+                message: "Max level reached"
+            });
+            return;
+        }
+
+        const nextLevel = results[0];
+        
+        // Level up pet
+        userpetModel.updateLevelById({
+            userpet_id: pet.userpet_id,
+            level_id: nextLevel.level_id
+        }, (updateError) => {
+            if (updateError) {
+                console.error("Error updateLevelById:", updateError);
+                res.status(500).json(updateError);
+                return;
+            }
+
+            res.status(200).json({
+                message: "Level up!",
+                pet: pet.pet_name,
+                level: nextLevel.level_name
+            });
+        });
+    });
 }

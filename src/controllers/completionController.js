@@ -2,130 +2,145 @@ const completionModel = require("../models/completionModel.js");
 const userModel = require('../models/userModel.js');
 const userpetModel = require('../models/userpetModel.js');
 
-module.exports.createNewCompletion = (req, res, next) =>
-{
-    const user = req.user;
+module.exports.createNewCompletion = (req, res, next) => {
     const challenge = req.challenge;
-
-    const data = {
-        challenge_id: req.params.challenge_id,
-        user_id: user.user_id,
-        details: req.body.details
+    
+    // From JWT token (already verified)
+    const user_id = res.locals.userId;
+    
+    if(req.body.details == undefined) {
+        res.status(400).json({
+            message: "Error: missing details"
+        });
+        return;
     }
 
-    // Check if user has pets first
-    userpetModel.selectById({ user_id: user.user_id }, (error, petResults) => {
+    // Get user info
+    userModel.selectById({ user_id: user_id }, (error, userResults) => {
         if (error) {
-            console.error("Error checking user pets:", error);
+            console.error("Error selectById:", error);
             res.status(500).json(error);
             return;
         }
 
-        let pointsEarned = challenge.points;
-        let loyaltyBonus = 0;
-        let levelMultiplierBonus = 0;
-        let updatedPets = [];
-        
-        // Add loyalty bonus and level multiplier if user has pets
-        if (petResults.length > 0) {
-            loyaltyBonus = Math.floor(challenge.points * 0.1); // 10% base loyalty bonus
-            
-            // Calculate level multiplier bonus based on pet levels
-            let totalPetLevel = 0;
-            petResults.forEach(pet => {
-                totalPetLevel += pet.level_id;
+        if (userResults.length == 0) {
+            res.status(404).json({
+                message: "user_id does not exist"
             });
-            
-            // Higher level pets give more bonus (5% per level above 1)
-            levelMultiplierBonus = Math.floor(challenge.points * ((totalPetLevel - petResults.length) * 0.05));
-            if (levelMultiplierBonus < 0) levelMultiplierBonus = 0;
-            
-            pointsEarned += loyaltyBonus + levelMultiplierBonus;
+            return;
         }
 
-        // Used for updating user points with all bonuses
-        const updateUserData = {
-            user_id: user.user_id,
-            points: user.points + pointsEarned
-        };
+        const user = userResults[0];
 
-        // Update user points after challenge completion
-        const updateUserCallback = (error, results, fields) => {
-            if (error) {
-                console.error("Error updatePointsById:", error);
-                res.status(500).json(error);
+        // Check user pets
+        userpetModel.selectById({ user_id: user_id }, (petError, petResults) => {
+            if (petError) {
+                console.error("Error checking pets:", petError);
+                res.status(500).json(petError);
                 return;
-            } 
-            
-            // If user has pets, update their hunger
-            if (petResults.length > 0) {
-                let petsUpdated = 0;
-                
-                petResults.forEach((pet) => {
-                    const newHunger = Math.max(0, pet.hunger - 10); // Decrease hunger by 10
-                    
-                    userpetModel.updateStatsById({
-                        userpet_id: pet.userpet_id,
-                        experience: pet.experience,
-                        hunger: newHunger
-                    }, (petError) => {
-                        if (petError) {
-                            console.error("Error updating pet hunger:", petError);
-                        }
-                        
-                        // Store updated pet info for response
-                        updatedPets.push({
-                            pet_name: pet.pet_name,
-                            pet_id: pet.pet_id,
-                            level_id: pet.level_id,
-                            old_hunger: pet.hunger,
-                            new_hunger: newHunger
-                        });
-                        
-                        petsUpdated++;
-                        
-                        // When all pets are updated, insert completion record
-                        if (petsUpdated === petResults.length) {
-                            completionModel.insertCompletion(data, insertCompletionCallback);
-                        }
-                    });
-                });
-            } else {
-                // User has no pets, just insert completion record directly
-                completionModel.insertCompletion(data, insertCompletionCallback);
             }
-        }
-        
-        const insertCompletionCallback = (error, results, fields) => {
-            if (error) {
-                console.error("Error createNewCompletion:", error);
-                res.status(500).json(error);
-            } 
-            else 
-            {
-                const response = {
-                    complete_id: results.insertId,
-                    challenge_id: data.challenge_id,
-                    user_id: data.user_id,
-                    details: data.details,
-                    challenge_points: challenge.points,
-                    loyalty_bonus: loyaltyBonus,
-                    level_multiplier_bonus: levelMultiplierBonus,
-                    total_points_earned: pointsEarned,
-                    user_total_points: updateUserData.points
-                };
-                
-                // Add pets info if user has pets
-                if (updatedPets.length > 0) {
-                    response.pets_updated = updatedPets;
+
+            let pointsEarned = challenge.points;
+            let bonusPoints = 0;
+            let updatedPets = [];
+            let hasHungryPet = false;
+            
+            // Check if user has pets and their hunger levels
+            if (petResults.length > 0) {
+                for (let i = 0; i < petResults.length; i++) {
+                    // Check if any pet has 0 hunger
+                    if (petResults[i].hunger <= 0) {
+                        hasHungryPet = true;
+                    }
                 }
                 
-                res.status(201).json(response);
+                // If any pet has 0 hunger, block challenge completion
+                if (hasHungryPet) {
+                    res.status(403).json({
+                        message: "Cannot complete challenge. One or more pets have 0 hunger. Please feed your pets first."
+                    });
+                    return;
+                }
+                
+                // Calculate bonus based on pet levels
+                let totalBonus = 0;
+                for (let i = 0; i < petResults.length; i++) {
+                    // Higher level pets give more bonus (5% per level)
+                    let petBonus = Math.floor(challenge.points * (petResults[i].level_id * 0.1));
+                    totalBonus += petBonus;
+                    
+                    // Decrease pet hunger by 10
+                    const newHunger = Math.max(0, petResults[i].hunger - 20);
+                    
+                    // Store pet update info
+                    updatedPets.push({
+                        pet_id: petResults[i].pet_id,
+                        pet_name: petResults[i].pet_name,
+                        hunger: newHunger,
+                        level_id: petResults[i].level_id,
+                        bonus_given: petBonus
+                    });
+                    
+                    // Update pet hunger in database
+                    userpetModel.updateStatsById({
+                        userpet_id: petResults[i].userpet_id,
+                        experience: petResults[i].experience,
+                        hunger: newHunger
+                    }, (hungerError) => {
+                        if (hungerError) {
+                            console.error("Error updating pet hunger:", hungerError);
+                        }
+                    });
+                }
+                
+                bonusPoints = totalBonus;
+                pointsEarned += totalBonus;
             }
-        } 
-           
-        // Start the transaction by updating user points
-        userModel.updatePointsById(updateUserData, updateUserCallback);
+
+            // Update user points
+            const newPoints = user.points + pointsEarned;
+            
+            userModel.updatePointsById({
+                user_id: user_id,
+                points: newPoints
+            }, (pointsError) => {
+                if (pointsError) {
+                    console.error("Error updatePointsById:", pointsError);
+                    res.status(500).json(pointsError);
+                    return;
+                }
+
+                const data = {
+                    challenge_id: req.params.challenge_id,
+                    user_id: user_id,
+                    details: req.body.details
+                }
+
+                // Save completion
+                completionModel.insertCompletion(data, (completionError, results) => {
+                    if (completionError) {
+                        console.error("Error insertCompletion:", completionError);
+                        res.status(500).json(completionError);
+                        return;
+                    }
+
+                    res.status(201).json({
+                        complete_id: results.insertId,
+                        challenge_id: data.challenge_id,
+                        user_id: data.user_id,
+                        details: data.details,
+                        points_earned: challenge.points,
+                        bonus_points: bonusPoints,
+                        total_points_earned: pointsEarned,
+                        new_total_points: newPoints,
+                        pets_updated: updatedPets,
+                        message: petResults.length > 0 
+                            ? `Challenge completed! Earned ${pointsEarned} points (${challenge.points} base + ${bonusPoints} pet bonus). Pet hunger decreased by 10.` 
+                            : `Challenge completed! Earned ${pointsEarned} points.`
+                    });
+                });
+            });
+        });
     });
 }
 

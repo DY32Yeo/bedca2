@@ -156,85 +156,30 @@ module.exports.checkUserPetById = (req, res, next) =>
     userpetModel.checkById(data, callback);
 }
 
-module.exports.performPetAction = (req, res, next) =>
+module.exports.checkPetOwnership = (req, res, next) =>
 {
-
-    const user = req.user;
-    const userpet = req.userpet;
-    const action = req.action;
-
-    // to check if user have succificent points to unlock the ability
-    if (user.points < action.unlock_cost) 
-    {
-        return res.status(403).json({
-            message: "Not enough points to perform action"
-        });
+    const data = {
+        user_id: res.locals.userId,
+        pet_id: req.body.pet_id
     }
 
-    // used to update the xp and hunger
-    let newExperience = userpet.experience + action.experience_gained;
-    let newHunger = userpet.hunger;
-
-    // only wrote 1 if since i am going to use tenary operator from FOP
-    if (action.action_type == "feed") {
-        newHunger = Math.min(100, Math.max(0, userpet.hunger + 20));
-    } else if (action.action_type == "train") {
-        if (userpet.hunger < 10) {
-            return res.status(400).json({
-                message: "Pet is too hungry to train"
-            });
-        }
-        newHunger = Math.max(0, userpet.hunger - 20);
-    }
-
-    
-
-    // 2 different data for 2 different callback for 2 different model
-    const updateUserData = {
-        user_id: user.user_id,
-        username: user.username,
-        points: user.points - action.unlock_cost
-    }
-
-    const updatePetData = {
-        userpet_id: userpet.userpet_id,
-        experience: newExperience,
-        hunger: newHunger
-    }
-
-    req.newExperience = newExperience;
-    req.newHunger = newHunger;
-    req.newPoints = updateUserData.points;
-
-
-    const updatePetCallback = (error, results, fields) => {
+    const callback = (error, results, fields) => {
         if (error) {
-            console.error("Error updatePetStats:", error);
+            console.error("Error checkPetOwnership:", error);
             res.status(500).json(error);
         } else {
-            // res.status(201).json({
-            //     message: action.action_type == "train" 
-            //     ? "Pet trained successfully"
-            //     : "Pet fed successfully",
-            //     userpet_id: userpet.userpet_id,
-            //     experience: newExperience,
-            //     hunger: newHunger,
-            //     points: updateUserData.points
-            // });
-            next();
+            if(results.length == 0) 
+            {
+                res.status(404).json({
+                    message: "Pet not found"
+                });
+                return;
+            }
         }
+        
+        req.pet = results[0];
+        next();
     }
 
-    const updateUserCallback = (error, results, fields) => {
-        if (error) {
-            console.error("Error updateUserPoints :", error);
-            res.status(500).json(error);
-        } else {
-            // this updates the pet stats like the experience and the hunger
-            userpetModel.updateStatsById(updatePetData, updatePetCallback);
-        }
-        }
-        // this updates the user stats like deducting point for action
-    userModel.updatePointsById(updateUserData, updateUserCallback);
-    // if updatePointsById error updateStatsById wont even run
+    userpetModel.selectByPetId(data, callback);
 }

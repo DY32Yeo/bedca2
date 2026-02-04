@@ -12,7 +12,7 @@ module.exports.selectAll = (callback) =>
 module.exports.selectLevelByExperience = (data, callback) =>
 {
     const SQLSTATMENT = `
-    SELECT level_id, level_name, experience_required
+    SELECT *
     FROM Level
     WHERE experience_required <= ?
     ORDER BY experience_required DESC
@@ -24,3 +24,14 @@ module.exports.selectLevelByExperience = (data, callback) =>
     pool.query(SQLSTATMENT, VALUES, callback);
 }
 
+module.exports.selectNextLevel = (data, callback) =>
+{
+    const SQLSTATMENT = `
+    SELECT * FROM Level
+    WHERE experience_required > ?
+    ORDER BY experience_required ASC
+    LIMIT 1;
+    `;
+    const VALUES = [data.experience];
+    pool.query(SQLSTATMENT, VALUES, callback);
+}

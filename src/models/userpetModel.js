@@ -24,7 +24,6 @@ module.exports.updateById = (data, callback) =>
     pool.query(SQLSTATMENT, VALUES, callback);
 }
 
-
 module.exports.insertSingle = (data, callback) =>
 {
     const SQLSTATMENT = `
@@ -44,6 +43,16 @@ module.exports.checkById = (data, callback) =>
     `;
     const VALUES = [data.userpet_id, data.user_id];
 
+    pool.query(SQLSTATMENT, VALUES, callback);
+}
+
+module.exports.selectByPetId = (data, callback) =>
+{
+    const SQLSTATMENT = `
+    SELECT * FROM UserPet
+    WHERE user_id = ? AND pet_id = ?;
+    `;
+    const VALUES = [data.user_id, data.pet_id];
     pool.query(SQLSTATMENT, VALUES, callback);
 }
 
@@ -67,6 +76,17 @@ module.exports.updateLevelById = (data, callback) =>
     WHERE userpet_id = ?;
     `;
     const VALUES = [data.level_id, data.userpet_id];
+
+    pool.query(SQLSTATMENT, VALUES, callback);
+}
+
+module.exports.checkByPetId = (data, callback) =>
+{
+    const SQLSTATMENT = `
+    SELECT * FROM UserPet
+    WHERE user_id = ? AND pet_id = ?;
+    `;
+    const VALUES = [data.user_id, data.pet_id];
 
     pool.query(SQLSTATMENT, VALUES, callback);
 }
