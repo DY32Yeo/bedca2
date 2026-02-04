@@ -6,7 +6,6 @@ const userController = require('../controllers/userController');
 const foodController = require('../controllers/foodController');
 const userpetController = require('../controllers/userpetController');
 const petController = require('../controllers/petController');
-const levelController = require('../controllers/levelController');
 const jwtMiddleware = require('../middlewares/jwtMiddleware');
 
 router.get('/', 
@@ -31,12 +30,5 @@ router.post('/pet/feed',
     inventoryController.feedPet
 );
 
-router.post('/pet/levelup', 
-    jwtMiddleware.verifyToken,
-    userController.checkUserById,
-    petController.checkPetById,
-    userpetController.checkPetOwnership, 
-    levelController.levelUpPet
-)
 
 module.exports = router;

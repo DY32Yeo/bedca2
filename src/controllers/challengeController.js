@@ -3,18 +3,21 @@ const userModel = require('../models/userModel.js');
 
 module.exports.createNewChallenge = (req, res, next) =>
 {
-    if(req.body.description == undefined || req.body.user_id == undefined)
+    const user_id = res.locals.userId;
+
+
+    if(req.body.description == undefined )
     {
         res.status(400).json({
-            message: "Error: missing question or user_id"
+            message: "Error: missing description"
         });
         return;
     }
 
     const data = {
         description: req.body.description,
-        creator_id: req.body.user_id,
-        points: req.body.points
+        creator_id: user_id,
+        points: req.body.points || 20
     }
 
     const callback = (error, results, fields) => {
@@ -49,39 +52,63 @@ module.exports.readAllChallenge = (req, res, next) =>
 
 module.exports.deleteChallengeById = (req, res, next) =>
 {
-    const data = {
-        challenge_id: req.params.challenge_id
-    }
+    const challenge_id = req.params.challenge_id;
+    const user_id = res.locals.userId;
 
-    const callback = (error, results, fields) => {
+    // First check if challenge exists and belongs to user
+    challengeModel.selectById({ challenge_id: challenge_id }, (error, results) => {
         if (error) {
-            console.error("Error deleteChallengeById:", error);
+            console.error("Error selectById:", error);
             res.status(500).json(error);
-        } else {
-            if(results.affectedRows == 0) 
-            {
-                res.status(404).json({
-                    message: "challenge_id does not exist"
-                });
-            }
-            else res.status(204).send(); // 204 No Content            
+            return;
         }
-    }
 
-    challengeModel.deleteById(data, callback);
+        if (results.length == 0) {
+            res.status(404).json({
+                message: "challenge_id does not exist"
+            });
+            return;
+        }
+
+        const challenge = results[0];
+        
+        // Check if user is the creator
+        if (challenge.creator_id != user_id) {
+            res.status(403).json({
+                message: "Forbidden: Not challenge owner"
+            });
+            return;
+        }
+
+        const data = {
+            challenge_id: challenge_id
+        }
+
+        const callback = (error, results, fields) => {
+            if (error) {
+                console.error("Error deleteChallengeById:", error);
+                res.status(500).json(error);
+            } else {
+                res.status(204).send(); // 204 No Content            
+            }
+        }
+
+        challengeModel.deleteById(data, callback);
+    });
 }
 
 module.exports.updateChallengeById = (req, res, next) =>
 {
-    if(req.body.user_id == undefined || req.body.description == undefined || req.body.points == undefined)
+    if(req.body.description == undefined || req.body.points == undefined)
     {
         res.status(400).json({
-            message: "Error: missing challenge description, points or user_id"
+            message: "Error: missing challenge description or points "
         });
         return;
     }
 
     const challengeId = req.params.challenge_id;
+    const user_id = res.locals.userId; // Get from JWT
     
     // cause model is where challenge_id = ? if not error 404
     const selectData = {
@@ -108,7 +135,7 @@ module.exports.updateChallengeById = (req, res, next) =>
         const challenge = results[0];
 
         // used to check if they user_id is same as the creator_id as they are supposed to be the same
-        if (req.body.user_id != challenge.creator_id) {
+        if (user_id != challenge.creator_id) {
             res.status(403).json({
                 message: "Forbidden: Not correct owner"
             });

@@ -16,54 +16,53 @@ module.exports.readAllLevel = (req, res, next) =>
 
 module.exports.levelUpPet = (req, res, next) =>
 {
+    const pet = req.pet;
 
-    const userpet = req.userpet;
-    const action = req.action;
-
-
-    const levelData = {
-        experience: req.newExperience
-    }
-
-    const levelCallback = (error, results, fields) => {
+    // Check next level
+    levelModel.selectLevelByExperience({ experience: pet.experience }, (error, results) => {
         if (error) {
             console.error("Error selectLevelByExperience:", error);
             res.status(500).json(error);
-        } 
-
-        let newLevelId = 1;
-        let newLevelName = null;
-
-        if (results.length != 0) {
-            newLevelId = results[0].level_id;
-            newLevelName = results[0].level_name;
+            return;
         }
 
-        const updateLevelData = {
-            userpet_id: userpet.userpet_id,
-            level_id: newLevelId
+        if (results.length == 0) {
+            res.status(400).json({
+                message: "Unable to level up pet"
+            });
+            return;
         }
 
-        const updateLevelCallback = (error, results, fields) => {
-            if (error) {
-                console.error("Error updateLevelById:", error);
-                res.status(500).json(error);
-            } else {
-                res.status(200).json({
-                    message: action.action_type == "train" 
-                    ? "Pet trained successfully"
-                    : "Pet fed successfully",
-                    userpet_id: userpet.userpet_id,
-                    experience: req.newExperience,
-                    hunger: req.newHunger,
-                    level_id: newLevelId,
-                    level_name: newLevelName,
-                    points: req.newPoints
-                });
+        const nextLevel = results[0];
+
+        // Check if pet is already at or above this level
+        if (pet.level_id >= nextLevel.level_id) {
+            return res.status(400).json({
+                message: "Pet is already at the max level for its experience",
+                level_id: nextLevel.level_id,
+                level_name: nextLevel.level_name,
+                experience: pet.experience
+            });
+        }
+        
+        // Level up pet
+        userpetModel.updateLevelById({
+            userpet_id: pet.userpet_id,
+            level_id: nextLevel.level_id
+        }, (updateError) => {
+            if (updateError) {
+                console.error("Error updateLevelById:", updateError);
+                res.status(500).json(updateError);
+                return;
             }
-        }
-    userpetModel.updateLevelById(updateLevelData, updateLevelCallback)
-    }
 
-    levelModel.selectLevelByExperience(levelData, levelCallback);
+            res.status(200).json({
+                message: "Level up successfully!",
+                pet_id: pet.pet_id,
+                pet_name: pet.pet_name,
+                level: nextLevel.level_name,
+                experience: pet.experience
+            });
+        });
+    });
 }

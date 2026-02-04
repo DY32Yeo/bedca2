@@ -94,7 +94,8 @@ CREATE TABLE Inventory (
 inventory_id INT AUTO_INCREMENT PRIMARY KEY,
 user_id INT NOT NULL,
 food_id INT NOT NULL,
-quantity INT DEFAULT 0
+quantity INT DEFAULT 0,
+UNIQUE KEY unique_user_food (user_id, food_id)
 );
 
 INSERT INTO User (username, email, password, points) VALUES

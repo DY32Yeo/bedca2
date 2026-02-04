@@ -86,3 +86,25 @@ module.exports.cleanupInventory = (data, callback) =>
 
     pool.query(SQLSTATMENT, VALUES, callback);
 }
+
+module.exports.selectValidUserInventory = (data, callback) =>
+{
+    const SQLSTATMENT = `
+    SELECT 
+        Inventory.inventory_id,
+        Inventory.food_id,
+        Inventory.quantity,
+        Food.food_name,
+        Food.cost, 
+        Food.hunger_restore,
+        Food.xp_gain
+    FROM Inventory, Food
+    WHERE Inventory.food_id = Food.food_id
+    AND Inventory.user_id = ?
+    AND Inventory.quantity > 0
+    ORDER BY Food.food_name;
+    `;
+    const VALUES = [data.user_id];
+
+    pool.query(SQLSTATMENT, VALUES, callback);
+}

@@ -20,7 +20,7 @@ module.exports.getUserInventory = (req, res, next) =>
         }
     }
 
-    inventoryModel.selectUserInventory(data, callback);
+    inventoryModel.selectValidUserInventory(data, callback);
 }
 
 module.exports.buyFood = (req, res, next) =>
@@ -100,6 +100,8 @@ module.exports.feedPet = (req, res, next) =>
     const user = req.user;
     const pet = req.pet;
     const food = req.food;
+    
+    const feedQuantity = req.body.quantity || 1;
 
     // Check food in inventory
     inventoryModel.checkUserHasFood({
@@ -119,21 +121,27 @@ module.exports.feedPet = (req, res, next) =>
             return;
         }
 
-        if (inventoryResults[0].quantity < (req.body.quantity || 1)) {
+        const inventoryItem = inventoryResults[0];
+        
+        if (inventoryItem.quantity < feedQuantity) {
             res.status(400).json({ 
-                message: "Not enough food" 
+                message: `Not enough food. You have ${inventoryItem.quantity} ${food.food_name}, but trying to feed ${feedQuantity}` 
             });
             return;
         }
 
-        const newHunger = Math.min(100, pet.hunger + food.hunger_restore);
-        const newExperience = pet.experience + food.xp_gain;
+        // Calculate total hunger restore and XP gain based on quantity
+        const totalHungerRestore = food.hunger_restore * feedQuantity;
+        const totalXpGain = food.xp_gain * feedQuantity;
+        
+        const newHunger = Math.min(100, pet.hunger + totalHungerRestore);
+        const newExperience = pet.experience + totalXpGain;
 
         // Use food
         inventoryModel.useFromInventory({
             user_id: user.user_id,
             food_id: food.food_id,
-            quantity: req.body.quantity || 1
+            quantity: feedQuantity
         }, (inventoryError) => {
             if (inventoryError) {
                 console.error("Error useFromInventory:", inventoryError);
@@ -141,66 +149,92 @@ module.exports.feedPet = (req, res, next) =>
                 return;
             }
 
-            // Update pet
-            userpetModel.updateStatsById({
-                userpet_id: pet.userpet_id,
-                experience: newExperience,
-                hunger: newHunger
-            }, (petError) => {
-                if (petError) {
-                    console.error("Error updateStatsById:", petError);
-                    res.status(500).json(petError);
+            // Check if quantity becomes 0 or negative after use
+            const newQuantity = inventoryItem.quantity - feedQuantity;
+            if (newQuantity <= 0) {
+                // Remove the inventory item if quantity is 0 or less
+                inventoryModel.cleanupInventory({ user_id: user.user_id }, (cleanupError) => {
+                    if (cleanupError) {
+                        console.error("Error cleanupInventory:", cleanupError);
+                        // Don't fail the request, just log
+                    }
+                });
+            }
+
+            // Check if pet should level up
+            levelModel.selectNextLevel({ experience: newExperience }, (levelError, levelResults) => {
+                if (levelError) {
+                    console.error("Error selectNextLevel:", levelError);
+                    res.status(500).json(levelError);
                     return;
                 }
 
-                res.status(200).json({
-                    message: "Pet fed!",
-                    pet: pet.pet_name,
-                    hunger: newHunger,
-                    xp: newExperience
+                let levelUpMessage = "";
+                let newLevelId = pet.level_id;
+                
+                // If pet can level up
+                if (levelResults.length > 0 && newExperience >= levelResults[0].experience_required) {
+                    newLevelId = levelResults[0].level_id;
+                    levelUpMessage = ` Leveled up to ${levelResults[0].level_name}!`;
+                }
+
+                // Update pet stats and level
+                userpetModel.updateStatsById({
+                    userpet_id: pet.userpet_id,
+                    experience: newExperience,
+                    hunger: newHunger
+                }, (petError) => {
+                    if (petError) {
+                        console.error("Error updateStatsById:", petError);
+                        res.status(500).json(petError);
+                        return;
+                    }
+
+                    // If level changed, update level
+                    if (newLevelId !== pet.level_id) {
+                        userpetModel.updateLevelById({
+                            userpet_id: pet.userpet_id,
+                            level_id: newLevelId
+                        }, (levelUpdateError) => {
+                            if (levelUpdateError) {
+                                console.error("Error updateLevelById:", levelUpdateError);
+                                // Don't fail the request, just log the error
+                            }
+                            
+                            // Get level name for response
+                            levelModel.selectAll((error, allLevels) => {
+                                const levelName = allLevels.find(l => l.level_id === newLevelId)?.level_name || `Level ${newLevelId}`;
+                                
+                                res.status(200).json({
+                                    message: `Pet fed ${feedQuantity} ${food.food_name}!` + levelUpMessage,
+                                    pet: pet.pet_name,
+                                    hunger: newHunger,
+                                    hunger_restored: totalHungerRestore,
+                                    xp: newExperience,
+                                    xp_gained: totalXpGain,
+                                    level_id: newLevelId,
+                                    level_name: levelName,
+                                    quantity_used: feedQuantity,
+                                    remaining_quantity: Math.max(0, newQuantity)
+                                });
+                            });
+                        });
+                    } else {
+                        res.status(200).json({
+                            message: `Pet fed ${feedQuantity} ${food.food_name}!` + levelUpMessage,
+                            pet: pet.pet_name,
+                            hunger: newHunger,
+                            hunger_restored: totalHungerRestore,
+                            xp: newExperience,
+                            xp_gained: totalXpGain,
+                            level_id: newLevelId,
+                            quantity_used: feedQuantity,
+                            remaining_quantity: Math.max(0, newQuantity)
+                        });
+                    }
                 });
             });
         });
     });
 }
 
-module.exports.levelUpPet = (req, res, next) =>
-{
-    const pet = req.pet;
-
-    // Check next level
-    levelModel.selectNextLevel({ experience: pet.experience }, (error, results) => {
-        if (error) {
-            console.error("Error selectNextLevel:", error);
-            res.status(500).json(error);
-            return;
-        }
-
-        if (results.length == 0) {
-            res.status(400).json({
-                message: "Max level reached"
-            });
-            return;
-        }
-
-        const nextLevel = results[0];
-        
-        // Level up pet
-        userpetModel.updateLevelById({
-            userpet_id: pet.userpet_id,
-            level_id: nextLevel.level_id
-        }, (updateError) => {
-            if (updateError) {
-                console.error("Error updateLevelById:", updateError);
-                res.status(500).json(updateError);
-                return;
-            }
-
-            res.status(200).json({
-                message: "Level up!",
-                pet: pet.pet_name,
-                level: nextLevel.level_name
-            });
-        });
-    });
-}

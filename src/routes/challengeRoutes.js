@@ -6,6 +6,8 @@ const jwtMiddleware = require('../middlewares/jwtMiddleware');
 
 router.get('/', challengeController.readAllChallenge);
 
+router.get('/:challenge_id', challengeController.checkChallengeById);
+
 router.post('/',
   jwtMiddleware.verifyToken,
   challengeController.createNewChallenge

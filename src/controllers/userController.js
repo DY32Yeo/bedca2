@@ -17,45 +17,45 @@ module.exports.checkAllUser = (req, res, next) =>
     userModel.selectAll(callback);
 }
 
-module.exports.createNewUser = (req, res, next) =>
-{
-    if(req.body.username == undefined)
-    {
-        return res.status(400).json({
-            message: "Error: username is missing"
-        });
-    }
+// module.exports.createNewUser = (req, res, next) =>
+// {
+//     if(req.body.username == undefined)
+//     {
+//         return res.status(400).json({
+//             message: "Error: username is missing"
+//         });
+//     }
 
-    // it will loop thru the array of username and check for duplicate username if it exists the error will be triggered
-    for (let i = 0; i < nameStore.length; i++) {
-        if(req.body.username == nameStore[i].username)
-        {
-            return res.status(409).json({
-                message: "Error: username is already associated with another user"
-            });
-        } 
-    }
+//     // it will loop thru the array of username and check for duplicate username if it exists the error will be triggered
+//     for (let i = 0; i < nameStore.length; i++) {
+//         if(req.body.username == nameStore[i].username)
+//         {
+//             return res.status(409).json({
+//                 message: "Error: username is already associated with another user"
+//             });
+//         } 
+//     }
 
-    const data = {
-        username: req.body.username,
-        points: 0
-    }
+//     const data = {
+//         username: req.body.username,
+//         points: 0
+//     }
 
-    const callback = (error, results, fields) => {
-        if (error) {
-            console.error("Error createNewUser:", error);
-            res.status(500).json(error);
-        } else {
-            res.status(201).json({
-                user_id: results.insertId,
-                username: data.username,
-                points: data.points
-            });
-        }
-    }
+//     const callback = (error, results, fields) => {
+//         if (error) {
+//             console.error("Error createNewUser:", error);
+//             res.status(500).json(error);
+//         } else {
+//             res.status(201).json({
+//                 user_id: results.insertId,
+//                 username: data.username,
+//                 points: data.points
+//             });
+//         }
+//     }
 
-    userModel.insertSingle(data, callback);
-}
+//     userModel.insertSingle(data, callback);
+// }
 
 module.exports.readAllUser = (req, res, next) =>
 {
@@ -72,6 +72,15 @@ module.exports.readAllUser = (req, res, next) =>
 
 module.exports.readUserById = (req, res, next) =>
 {
+    const loggedInUserId = res.locals.userId;
+    const targetUserId = parseInt(req.params.user_id);
+
+    if (loggedInUserId !== targetUserId) {
+        return res.status(403).json({
+            message: "Forbidden: You can only view your own profile"
+        });
+    }
+
     const data = {
         user_id: req.params.user_id
     }
@@ -100,6 +109,15 @@ module.exports.updateUserById = (req, res, next) =>
     {
         return res.status(400).json({
             message: "Error: username is missing"
+        });
+    }
+
+    const loggedInUserId = res.locals.userId;
+    const targetUserId = parseInt(req.params.user_id);
+
+    if (loggedInUserId !== targetUserId) {
+        return res.status(403).json({
+            message: "Forbidden: You can only update your own profile"
         });
     }
 
@@ -290,4 +308,38 @@ module.exports.register = (req, res, next) => {
             console.error("Error register: ", error);
             res.status(500).json(error);
         }
+}
+
+module.exports.deleteUserById = (req, res, next) =>
+{
+    const loggedInUserId = res.locals.userId;
+    const targetUserId = parseInt(req.params.user_id);
+
+    // Check if user is deleting their own account 
+    if (loggedInUserId !== targetUserId) {
+        return res.status(403).json({
+            message: "Forbidden: You can only delete your own account"
+        });
+    }
+    
+    const data = {
+        user_id: req.params.user_id
+    }
+
+    const callback = (error, results, fields) => {
+        if (error) {
+            console.error("Error deleteUserById:", error);
+            res.status(500).json(error);
+        } else {
+            if(results.length == 0) 
+            {
+                res.status(404).json({
+                    message: "user_id does not exist"
+                });
+            }
+            else res.status(204).send();
+        }
+    }
+
+    userModel.deleteById(data, callback);
 }

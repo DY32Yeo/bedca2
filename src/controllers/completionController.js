@@ -2,7 +2,8 @@ const completionModel = require("../models/completionModel.js");
 const userModel = require('../models/userModel.js');
 const userpetModel = require('../models/userpetModel.js');
 
-module.exports.createNewCompletion = (req, res, next) => {
+module.exports.createNewCompletion = (req, res, next) => 
+{
     const challenge = req.challenge;
     
     // From JWT token (already verified)
@@ -49,7 +50,7 @@ module.exports.createNewCompletion = (req, res, next) => {
             if (petResults.length > 0) {
                 for (let i = 0; i < petResults.length; i++) {
                     // Check if any pet has 0 hunger
-                    if (petResults[i].hunger <= 0) {
+                    if (petResults[i].hunger <= 10) {
                         hasHungryPet = true;
                     }
                 }
@@ -57,20 +58,24 @@ module.exports.createNewCompletion = (req, res, next) => {
                 // If any pet has 0 hunger, block challenge completion
                 if (hasHungryPet) {
                     res.status(403).json({
-                        message: "Cannot complete challenge. One or more pets have 0 hunger. Please feed your pets first."
+                        message: "Cannot complete challenge. One or more pets have 10 or less hunger. Please feed your pets first."
                     });
                     return;
                 }
                 
-                // Calculate bonus based on pet levels
+                // Calculate bonus based on pet levels (5% per level)
                 let totalBonus = 0;
                 for (let i = 0; i < petResults.length; i++) {
                     // Higher level pets give more bonus (5% per level)
-                    let petBonus = Math.floor(challenge.points * (petResults[i].level_id * 0.1));
+                    let petBonus = Math.floor(challenge.points * (petResults[i].level_id * 0.05));
                     totalBonus += petBonus;
                     
+                    // Calculate pet XP gain (50% of challenge points)
+                    const petXpGain = Math.floor(challenge.points * 0.5);
+                    const newExperience = petResults[i].experience + petXpGain;
+                    
                     // Decrease pet hunger by 10
-                    const newHunger = Math.max(0, petResults[i].hunger - 20);
+                    const newHunger = Math.max(0, petResults[i].hunger - 10);
                     
                     // Store pet update info
                     updatedPets.push({
@@ -78,17 +83,19 @@ module.exports.createNewCompletion = (req, res, next) => {
                         pet_name: petResults[i].pet_name,
                         hunger: newHunger,
                         level_id: petResults[i].level_id,
-                        bonus_given: petBonus
+                        experience: newExperience,
+                        bonus_given: petBonus,
+                        xp_gained: petXpGain
                     });
                     
-                    // Update pet hunger in database
+                    // Update pet hunger and experience in database
                     userpetModel.updateStatsById({
                         userpet_id: petResults[i].userpet_id,
-                        experience: petResults[i].experience,
+                        experience: newExperience,
                         hunger: newHunger
                     }, (hungerError) => {
                         if (hungerError) {
-                            console.error("Error updating pet hunger:", hungerError);
+                            console.error("Error updating pet stats:", hungerError);
                         }
                     });
                 }
@@ -135,7 +142,7 @@ module.exports.createNewCompletion = (req, res, next) => {
                         new_total_points: newPoints,
                         pets_updated: updatedPets,
                         message: petResults.length > 0 
-                            ? `Challenge completed! Earned ${pointsEarned} points (${challenge.points} base + ${bonusPoints} pet bonus). Pet hunger decreased by 10.` 
+                            ? `Challenge completed! Earned ${pointsEarned} points (${challenge.points} base + ${bonusPoints} pet bonus). Pet hunger decreased by 10 and gained XP.` 
                             : `Challenge completed! Earned ${pointsEarned} points.`
                     });
                 });

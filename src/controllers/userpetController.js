@@ -27,40 +27,53 @@ module.exports.getUserPetById = (req, res, next) =>
 
 module.exports.updatePetNameById = (req, res, next) =>
 {
-    if(req.body.pet_name == undefined || req.body.user_id == undefined)
-    {
+    if(req.body.pet_name == undefined) {
         res.status(400).json({
-            message: "pet_name or user_id missing"
+            message: "pet_name missing"
         });
         return;
     }
 
-    const data = {
-        userpet_id: req.params.userpet_id,
-        pet_name: req.body.pet_name,
-        user_id: req.body.user_id
-    }
+    const user_id = res.locals.userId; // Get from JWT
+    const userpet_id = req.params.userpet_id;
 
-    const callback = (error, results, fields) => {
+    // First check if pet belongs to user
+    userpetModel.checkById({ userpet_id: userpet_id, user_id: user_id }, (error, results) => {
         if (error) {
-            console.error("Error updatePetNameById:", error);
+            console.error("Error checkById:", error);
             res.status(500).json(error);
-        } else {
-            if(results.affectedRows == 0) 
-            {
-                res.status(404).json({
-                    message: "Pet not found."
-                });
-            }
-            else res.status(200).json({
-                userpet_id: data.userpet_id,
-                pet_name: data.pet_name,
-                user_id: data.user_id
-            }); 
+            return;
         }
-    }
 
-    userpetModel.updateById(data, callback);
+        if (results.length == 0) {
+            res.status(404).json({
+                message: "Pet not found or you don't own this pet"
+            });
+            return;
+        }
+
+        const data = {
+            userpet_id: userpet_id,
+            pet_name: req.body.pet_name,
+            user_id: user_id
+        }
+
+        const callback = (error, results, fields) => {
+            if (error) {
+                console.error("Error updatePetNameById:", error);
+                res.status(500).json(error);
+            } else {
+                res.status(200).json({
+                    userpet_id: data.userpet_id,
+                    pet_name: data.pet_name,
+                    user_id: data.user_id
+                }); 
+            }
+        }
+
+        userpetModel.updateById(data, callback);
+    });
+
 }
 
 module.exports.adoptPet = (req, res, next) =>

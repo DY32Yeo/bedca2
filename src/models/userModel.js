@@ -67,16 +67,16 @@ module.exports.updatePointsById = (data, callback) =>
     pool.query(SQLSTATMENT, VALUES, callback);
 }
 
-module.exports.selectByIdPet = (data, callback) =>
-{
-    const SQLSTATMENT = `
-    SELECT * FROM UserPet
-    WHERE user_id = ?;
-    `;
-    const VALUES = [data.user_id];
+// module.exports.selectByIdPet = (data, callback) =>
+// {
+//     const SQLSTATMENT = `
+//     SELECT * FROM UserPet
+//     WHERE user_id = ?;
+//     `;
+//     const VALUES = [data.user_id];
 
-    pool.query(SQLSTATMENT, VALUES, callback);
-} 
+//     pool.query(SQLSTATMENT, VALUES, callback);
+// } 
 
 module.exports.selectRank = (callback) =>
 {
@@ -135,3 +135,15 @@ module.exports.register = (data, callback) => {
 
     pool.query(SQLSTATEMENT, VALUES, callback);
 }   
+
+module.exports.deleteById = (data, callback) =>
+{
+    const SQLSTATMENT = `
+    DELETE 
+    FROM User
+    WHERE user_id = ?;
+    `;
+    const VALUES = [data.user_id];
+
+    pool.query(SQLSTATMENT, VALUES, callback);
+}

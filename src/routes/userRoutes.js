@@ -4,7 +4,7 @@ const router = express.Router();
 const userController = require('../controllers/userController');
 const jwtMiddleware = require('../middlewares/jwtMiddleware');
 
-router.post('/', userController.checkAllUser, userController.createNewUser);
+// router.post('/', userController.checkAllUser, userController.createNewUser);
 
 // Only logged in user can see other users
 router.get('/', 
@@ -28,6 +28,12 @@ router.put('/:user_id',
     userController.checkAllUser, 
     userController.updateUserById
 );
+
+// user can only delete their own account
+router.delete('/:user_id', 
+    jwtMiddleware.verifyToken,
+    userController.deleteUserById
+)
 
 
 
