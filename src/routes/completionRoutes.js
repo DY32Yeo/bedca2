@@ -12,6 +12,13 @@ router.post('/challenges/:challenge_id',
     completionController.createNewCompletion
 );
 
-router.get('/challenges/:challenge_id', completionController.readAllChallengeById);
+// router.get('/challenges/:challenge_id', completionController.readAllChallengeById);
+
+router.get('/user', 
+    jwtMiddleware.verifyToken,
+    completionController.getUserCompletions
+);
+
+// router.get('/all', completionController.getAllCompletions)
 
 module.exports = router;

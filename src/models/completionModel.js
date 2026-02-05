@@ -22,3 +22,18 @@ module.exports.getAttemptById = (data, callback) =>
 
     pool.query(SQLSTATMENT, VALUES, callback);
 }
+
+module.exports.getCompletionById = (data, callback) =>
+{
+    const SQLSTATMENT = `
+    SELECT 
+        challenge_id,
+        COUNT(*) as completion_count
+    FROM UserCompletion
+    WHERE user_id = ?
+    GROUP BY challenge_id;
+    `;
+    const VALUES = [data.user_id];
+
+    pool.query(SQLSTATMENT, VALUES, callback);
+}

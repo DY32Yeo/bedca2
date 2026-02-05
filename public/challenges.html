@@ -85,118 +85,162 @@
 
     <main class="py-4">
       <div class="container">
-        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mt-4 mb-3">
-          <div>
-            <h2 class="fw-bold mb-1">Wellness Challenges</h2>
-            <p class="text-muted mb-0">View challenges anytime. Login to complete or create your own.</p>
+        <!-- Header Section -->
+        <section class="mb-5">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+              <h1 class="fw-bold mb-2 fs-1">Wellness Challenges</h1>
+              <p class="text-muted">Complete challenges to earn points for your pet!</p>
+            </div>
+            <button id="createBtn" class="btn btn-primary btn-lg">
+              + Create New Challenge
+            </button>
           </div>
 
-          <button id="openCreateChallengeBtn" class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#createChallengeModal">
-            + Create Challenge
-          </button>
-        </div>
+          <div id="loginHint" class="alert alert-warning d-none">
+            Please login to create or complete challenges.
+          </div>
 
-        <div id="loginHint" class="alert alert-warning d-none">
-          You are not logged in. You can view challenges, but actions are disabled.
-        </div>
+          <div id="errorMsg" class="alert alert-danger d-none"></div>
+          <div id="successMsg" class="alert alert-success d-none"></div>
+        </section>
 
-        <div id="challengeError" class="alert alert-danger d-none"></div>
+        <!-- Challenges Grid Section -->
+        <section class="mb-5">
+          <h2 class="mb-4">Available Challenges</h2>
+          <div class="row g-4" id="challengesContainer"></div>
+        </section>
 
-        <div class="row g-4" id="challengeList"></div>
+        <!-- Stats Section (Optional) -->
+        <section class="mt-5">
+          <div class="row g-4">
+            <div class="col-md-4">
+              <div class="card h-100 text-center">
+                <div class="card-body d-flex flex-column">
+                  <div class="display-1 text-primary mb-3">🎯</div>
+                  <h5 class="card-title">Complete Challenges</h5>
+                  <p class="card-text">Earn points by completing wellness challenges daily</p>
+                  <div class="mt-3">
+                    <span class="badge bg-primary fs-5" id="totalCompleted">0</span>
+                    <p class="text-muted mb-0">Challenges Completed</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card h-100 text-center">
+                <div class="card-body d-flex flex-column">
+                  <div class="display-1 text-primary mb-3">💰</div>
+                  <h5 class="card-title">Earn Points</h5>
+                  <p class="card-text">Use points to adopt pets and buy food</p>
+                  <div class="mt-3">
+                    <span class="badge bg-success fs-5" id="totalPoints">0</span>
+                    <p class="text-muted mb-0">Total Points Earned</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card h-100 text-center">
+                <div class="card-body d-flex flex-column">
+                  <div class="display-1 text-primary mb-3">⭐</div>
+                  <h5 class="card-title">Your Challenges</h5>
+                  <p class="card-text">Create challenges for other users to complete</p>
+                  <div class="mt-3">
+                    <span class="badge bg-warning fs-5" id="createdChallenges">0</span>
+                    <p class="text-muted mb-0">Challenges Created</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
     </main>
 
     <!-- Create Challenge Modal -->
-    <div class="modal fade" id="createChallengeModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal fade" id="createModal">
+      <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title fw-bold">Create New Challenge</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
-            <div id="createChallengeMsg" class="alert d-none"></div>
-
-            <form id="createChallengeForm">
+            <div id="createError" class="alert alert-danger d-none mb-3"></div>
+            <form id="createForm">
               <div class="mb-3">
-                <label class="form-label">Description</label>
-                <textarea class="form-control" id="createDescription" rows="3" required></textarea>
+                <label class="form-label fw-bold">Challenge Description</label>
+                <textarea class="form-control" id="description" rows="4" placeholder="What wellness activity should users complete?" required></textarea>
               </div>
-
-              <div class="mb-3">
-                <label class="form-label">Points</label>
-                <input class="form-control" id="createPoints" type="number" min="1" value="20" />
-                <div class="form-text">If you leave it, backend defaults to 20.</div>
+              <div class="mb-4">
+                <label class="form-label fw-bold">Points Reward</label>
+                <input type="number" class="form-control" id="points" min="1" value="20" placeholder="How many points for completing?">
+                <div class="form-text">Default is 20 points if left empty</div>
               </div>
-
-              <button id="createChallengeSubmitBtn" class="btn btn-primary" type="submit">Create</button>
+              <button type="submit" class="btn btn-primary w-100 py-2">Create Challenge</button>
             </form>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Challenge Details Modal -->
-    <div class="modal fade" id="challengeModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-lg modal-dialog-centered">
+    <!-- Complete Challenge Modal -->
+    <div class="modal fade" id="completeModal">
+      <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title fw-bold" id="challengeModalTitle">Challenge</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <h5 class="modal-title fw-bold">Complete Challenge</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
-
           <div class="modal-body">
-            <div id="challengeModalMsg" class="alert d-none"></div>
-
-            <div class="mb-3">
-              <div class="text-muted small">Creator ID</div>
-              <div id="challengeModalCreator" class="fw-bold"></div>
-            </div>
-
-            <div class="mb-3">
-              <div class="text-muted small">Points</div>
-              <div id="challengeModalPoints" class="fw-bold"></div>
-            </div>
-
-            <div class="mb-4">
-              <div class="text-muted small">Description</div>
-              <div id="challengeModalDesc"></div>
-            </div>
-
-            <hr class="my-4" />
-
-            <h6 class="fw-bold">Complete Challenge</h6>
-            <form id="completeChallengeForm" class="mb-4">
-              <div class="mb-3">
-                <label class="form-label">Details (required by backend)</label>
-                <textarea class="form-control" id="completeDetails" rows="2" required></textarea>
+            <div id="completeError" class="alert alert-danger d-none mb-3"></div>
+            <div class="card mb-4">
+              <div class="card-body">
+                <h6 class="card-subtitle mb-2 text-muted">Challenge</h6>
+                <p id="challengeText" class="card-text fs-5"></p>
+                <div class="d-flex align-items-center">
+                  <span class="badge bg-primary me-2" id="challengePoints">0 points</span>
+                </div>
               </div>
-              <button id="completeBtn" type="submit" class="btn btn-success">Complete</button>
+            </div>
+            <form id="completeForm">
+              <div class="mb-4">
+                <label class="form-label fw-bold">Completion Details</label>
+                <textarea class="form-control" id="details" rows="3" placeholder="How did you complete this challenge? Share your experience..." required></textarea>
+                <div class="form-text">*Please provide details</div>
+              </div>
+              <button type="submit" class="btn btn-success w-100 py-2">Submit Completion</button>
             </form>
+          </div>
+        </div>
+      </div>
+    </div>
 
-            <div id="ownerActions" class="d-none">
-              <hr class="my-4" />
-              <h6 class="fw-bold">Owner Actions</h6>
-
-              <form id="editChallengeForm" class="mb-3">
-                <div class="mb-2">
-                  <label class="form-label">Edit Description</label>
-                  <textarea class="form-control" id="editDescription" rows="2" required></textarea>
-                </div>
-
-                <div class="mb-3">
-                  <label class="form-label">Edit Points</label>
-                  <input class="form-control" id="editPoints" type="number" min="1" required />
-                </div>
-
-                <button id="saveEditBtn" class="btn btn-warning" type="submit">Save Changes</button>
-                <button id="deleteChallengeBtn" class="btn btn-danger ms-2" type="button">Delete Challenge</button>
-              </form>
-            </div>
-
-            <div id="notOwnerNote" class="text-muted small d-none">
-              You can only edit/delete challenges you created.
-            </div>
+    <!-- Manage Challenge Modal -->
+    <div class="modal fade" id="manageModal">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold">Manage Your Challenge</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div id="manageError" class="alert alert-danger d-none mb-3"></div>
+            <form id="manageForm">
+              <div class="mb-3">
+                <label class="form-label fw-bold">Challenge Description</label>
+                <textarea class="form-control" id="editDescription" rows="4" required></textarea>
+              </div>
+              <div class="mb-4">
+                <label class="form-label fw-bold">Points Reward</label>
+                <input type="number" class="form-control" id="editPoints" min="1" required>
+              </div>
+              <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-warning py-2">Save Changes</button>
+                <button type="button" id="deleteBtn" class="btn btn-outline-danger py-2">Delete Challenge</button>
+              </div>
+            </form>
           </div>
         </div>
       </div>

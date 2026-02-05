@@ -57,13 +57,13 @@ module.exports.createNewCompletion = (req, res, next) =>
                 // If any pet has 0 hunger, block challenge completion
                 if (hasHungryPet) {
                     res.status(403).json({
-                        message: "Cannot complete challenge. One or more pets have 10 or less hunger. Please feed your pets first."
+                        message: "Cannot complete challenge. Your pet have 10 or less hunger. Please feed your pets first."
                     });
                     return;
                 }
                 
-                // Calculate bonus based on pet levels (5% per level)
-                bonusPoints = Math.floor(challenge.points * (pet.level_id * 0.05));
+                // Calculate bonus based on pet levels (10% per level)
+                bonusPoints = Math.floor(challenge.points * (pet.level_id * 0.1));
                 pointsEarned += bonusPoints;
 
                 // Calculate pet XP gain (50% of challenge points)
@@ -166,4 +166,24 @@ module.exports.readAllChallengeById = (req, res, next) =>
     }
 
     completionModel.getAttemptById(data, callback);
+}
+
+module.exports.getUserCompletions = (req, res, next) =>
+{   
+    const user_id = res.locals.userId;
+
+    const data = {
+        user_id: user_id
+    }
+
+    const callback = (error, results, fields) => {
+        if (error) {
+            console.error("Error getUserCompletions:", error);
+            res.status(500).json(error);
+        } else {
+            res.status(200).json(results);
+        }
+    }
+
+    completionModel.getCompletionById(data, callback);
 }
