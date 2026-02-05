@@ -196,3 +196,31 @@ module.exports.checkPetOwnership = (req, res, next) =>
 
     userpetModel.selectByPetId(data, callback);
 }
+
+module.exports.checkUserHasPet = (req, res, next) =>
+{   
+    const user_id = res.locals.userId;
+
+    const data = {
+        user_id: user_id
+    }
+
+    const callback = (error, results, fields) => {
+        if (error) {
+            console.error("Error checkUserHasPet:", error);
+            res.status(500).json(error);
+        } else {
+            if(results.length > 0) 
+            {
+                res.status(400).json({
+                    message: "You already owned a pet. Only one pet allowed per user"
+                });
+                return;
+            }
+            next();
+            // else res.status(200).json(results);
+        }
+    }
+
+    userpetModel.selectById(data, callback);
+}

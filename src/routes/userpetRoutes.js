@@ -25,7 +25,8 @@ router.put('/:userpet_id',
 router.post(
     '/adopt', 
     jwtMiddleware.verifyToken, 
-    userController.checkUserById, 
+    userController.checkUserById,
+    userpetController.checkUserHasPet, 
     petController.checkPetById, 
     userpetController.adoptPet
 );

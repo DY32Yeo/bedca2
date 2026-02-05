@@ -99,8 +99,8 @@ UNIQUE KEY unique_user_food (user_id, food_id)
 );
 
 INSERT INTO User (username, email, password, points) VALUES
-('Captain Rex', 'rex@gmail.com', '${hash}', 501),
-('Commander Cody', 'cody@gmail.com', '${hash}', 212),
+('Captain Rex', 'rex@gmail.com', '${hash}', 140),
+('Commander Cody', 'cody@gmail.com', '${hash}', 50),
 ('Obi-Wan Kenobi', 'obi@gmail.com', '${hash}', 100),
 ('Anakin Skywalker', 'ani@gmail.com', '${hash}', 150),
 ('Yoda', 'yoda@gmail.com', '${hash}', 80),
@@ -123,9 +123,13 @@ INSERT INTO UserCompletion (challenge_id, user_id, details) VALUES
 (1, 3, "Sleep is for the wise who don't want to look like a zombie in 4K."),
 (2, 1, "Climbed 100 levels of stairs"),
 (2, 1, "Climb stairs everyday instead of lift"),
+(2, 1, "Took the stairs back home"),
+(2, 1, "Used stairmaster in the gym"),
 (5, 1, "Meet up with friend for coffee"),
 (6, 1, "Tidy up my room"),
-(7, 1, "Helped someone with their grocery bags");
+(7, 1, "Helped someone with their grocery bags"),
+(2, 2, "Took the stairs back home"),
+(2, 2, "Used stairmaster in the gym");
 
 INSERT INTO Pet (species, adopt_cost) VALUES 
 ('Dog', 30),
@@ -135,14 +139,13 @@ INSERT INTO Pet (species, adopt_cost) VALUES
 ('Parrot', 150),
 ('Seal', 200);
 
-INSERT INTO UserPet (user_id, pet_id, pet_name, level_id, experience) VALUES 
-(1, 1, 'Rex', 5, 520),
-(1, 2, 'Fives', 1, 0),
-(2, 2, 'Cody', 4, 250),
-(3, 1, 'Kenobi', 3, 150),
-(4, 3, 'Darth Vader', 4, 320),
-(5, 2, 'Jedi', 2, 80),
-(6, 1, 'Grogu', 3, 180);
+INSERT INTO UserPet (user_id, pet_id, pet_name) VALUES 
+(1, 1, 'Rex'),
+(2, 2, 'Cody'),
+(3, 1, 'Kenobi'),
+(4, 3, 'Darth Vader'),
+(5, 2, 'Jedi'),
+(6, 1, 'Grogu');
 
 INSERT INTO Level (level_name, experience_required) VALUES
 ('Newborn', 0),

@@ -1,0 +1,95 @@
+
+/* =========================
+   Pet Guardian Navy Theme
+   ========================= */
+
+:root{
+  --pg-bg: #071225;
+  --pg-surface: #0c1a33;
+  --pg-surface-2: #0b1b3a;
+  --pg-border: rgba(255,255,255,0.08);
+  --pg-text: #e5e7eb;
+  --pg-muted: rgba(229,231,235,0.7);
+  --pg-accent: #3b82f6;         /* main blue */
+  --pg-accent-2: #2563eb;       /* darker hover */
+}
+
+/* Page background */
+/* body{
+  background: var(--pg-bg) !important;
+  color: var(--pg-text) !important;
+} */
+
+/* Navbar */
+.navbar{
+  background: var(--pg-surface-2) !important;
+  border-bottom: 1px solid var(--pg-border);
+}
+
+.navbar .navbar-brand,
+.navbar .nav-link{
+  color: var(--pg-text) !important;
+}
+.navbar .nav-link.active,
+.navbar .nav-link:hover{
+  color: #ffffff !important;
+  opacity: 0.95;
+}
+
+.logo {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+    filter: invert(1);
+}
+
+/* Card styling */
+.card{
+  background: var(--pg-surface) !important;
+  border: 1px solid var(--pg-border) !important;
+  border-radius: 14px;
+}
+.card-title{
+  color: var(--pg-text) !important;
+}
+.card-text, .lead{
+  color: var(--pg-muted) !important;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5{
+  color: var(--pg-text) !important;
+}
+
+/* Buttons */
+.btn-primary{
+  background: var(--pg-accent) !important;
+  border-color: var(--pg-accent) !important;
+  color: #0b1220 !important; /* readable */
+  border-radius: 10px;
+}
+.btn-primary:hover{
+  background: var(--pg-accent-2) !important;
+  border-color: var(--pg-accent-2) !important;
+}
+.btn-outline-primary{
+  border-color: var(--pg-accent) !important;
+  color: var(--pg-accent) !important;
+  border-radius: 10px;
+}
+.btn-outline-primary:hover{
+  background: var(--pg-accent) !important;
+  color: #0b1220 !important;
+}
+
+/* Make all small buttons consistent */
+.btn-sm{
+  padding: 0.45rem 0.9rem;
+  font-weight: 600;
+}
+
+/* Footer */
+footer.bg-primary{
+  background: var(--pg-surface-2) !important;
+  border-top: 1px solid var(--pg-border);
+}

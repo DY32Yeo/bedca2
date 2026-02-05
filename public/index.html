@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
   <head>
     <meta charset="UTF-8" />
+    <meta name="color-scheme" content="light dark">
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- Bootstrap CSS -->
@@ -11,17 +12,23 @@
           integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
           crossorigin="anonymous"
     />
+    <title>Pet Guardian</title>
+
     <link href="css/style.css" rel="stylesheet" />
     <link href="css/color.css" rel="stylesheet" />
-    <title>Home</title>
   </head>
+
   <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark py-4">
       <div class="container">
-        <a class="navbar-brand" href="index.html"
-          ><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png"
-            class="logo img-fluid"
-        /></a>
+        <a class="navbar-brand d-flex align-items-center" href="index.html">
+          <!-- <div class="brand-badge"> -->
+            <img src="images/logo.png"
+            class="logo img-fluid" alt = "Pet Guardian Logo"/>
+          <!-- </div> -->
+          <span class="ms-2 fw-bold">Pet Guardian</span>
+      </a>
         <button
           class="navbar-toggler"
           type="button"
@@ -33,41 +40,39 @@
         >
           <span class="navbar-toggler-icon"></span>
         </button>
+
         <div class="collapse navbar-collapse" id="navbarNav">
           <!-- me-auto: margin-right: auto -->
           <ul class="navbar-nav me-auto">
-            <li class="nav-item">
-              <a class="nav-link" href="index.html">Home</a>
+            <li class="nav-item mx-3">
+              <a class="nav-link active fw-bold fs-4" href="index.html">Home</a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="players.html">Players</a>
+            <li class="nav-item mx-3">
+              <a class="nav-link fs-4" href="challenges.html">Challenges</a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="pokemons.html">Pokemons</a>
+            <li class="nav-item mx-3">
+              <a class="nav-link fs-4" href="pets.html">Pets</a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="pokedex.html">Pokedex</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="users.html">Users</a>
+            <li class="nav-item mx-3">
+              <a class="nav-link fs-4" href="food.html">Store</a>
             </li>
           </ul>
-        </div>
-        <div class="collapse navbar-collapse" id="navbarNav">
+        <!-- </div>
+        <div class="collapse navbar-collapse" id="navbarNav"> -->
           <!-- ms-auto: margin-left: auto -->
           <ul class="navbar-nav ms-auto">
-            <li class="nav-item">
-              <a id="profileButton" href="/profile.html" class="nav-link">Profile</a>
+            <li class="nav-item mx-3">
+              <a id="profileButton" href="profile.html" class="nav-link fs-4 py-2">Profile</a>
             </li>
-            <li class="nav-item">
-              <a id="logoutButton" href="#" class="nav-link">Logout</a>
+            <li class="nav-item mx-3">
+              <a id="logoutButton" href="#" class="nav-link fs-4 py-2">Logout</a>
             </li>
-            <li class="nav-item">
-              <a id="loginButton" href="/login.html" class="nav-link">Login</a>
+            <li class="nav-item mx-3">
+              <a id="loginButton" href="login.html" class="nav-link fs-4 py-2">Login</a>
             </li>
             <li>
-              <div class="btn-nav">
-                <a id="registerButton" class="btn text-bg-dark btn-small navbar-btn" href="/register.html"
+              <div class="btn-nav mx-5">
+                <a id="registerButton" class="btn text-bg-dark btn-lg navbar-btn" href="/register.html"
                   >Register!</a
                 >
               </div>
@@ -76,26 +81,111 @@
         </div>
       </div>
     </nav>
+
+
     <main class="py-4">
-      <div class="container">
-        <div class="row">
-          <div class="col-12">
-            <h1 class="text-center">Pokemons Created</h1>
+      <!-- Hero section -->
+      <section class="hero-section d-flex align-items-center mb-5 mt-5">
+        <div class="container">
+          <div class="row align-items-center">
+            <!-- <div class="col-lg-6"> -->
+              <div class="hero-content text-center">
+                <h1 class="display-4 fw-bold mb-4">
+                  Welcome to Wellness Pet Guardian
+                </h1>
+                <p class="lead mb-4">
+                  Complete challenges -> earn points -> adopt pets -> buy food -> feed & level up
+                </p>
+
+                <div class="hero-button">
+                  <a href="login.html" class="btn btn-primary btn-lg me-3 mb-4 mx-3">Login</a>
+                  <a href="register.html" class="btn btn-outline-primary btn-lg mb-4 mx-3">Register</a>
+                </div>
+              </div>
+            <!-- </div> -->
           </div>
         </div>
-      </div>
-      <div class="container">
-        <div id="pokemonList" class="row"></div>
-      </div>
+      </section>
+
+      <section class="leaderboard-section mb-5 mt-5">
+        <div class="container">
+          <div class="row justify-content-center">
+            <div class="col-12">
+              <h3 class="mb-3 text-center">Leaderboard</h3>
+
+              <div class="card">
+                <div class="card-body py-4">
+                  <div class="table-responsive">
+                    <table class="table table-hover align-middle leaderboard-table mb-0">
+                      <thead>
+                        <tr>
+                          <th style="width: 120px;">Rank</th>
+                          <th style="width: 180px;">Username</th>
+                          <th style="width: 180px;">Pet Name</th>
+                          <th style="width: 250px;">Challenges Completed</th>
+                          <th style="width: 220px;">Points Earned</th>
+                        </tr>
+                      </thead>
+                      <tbody id="leaderboardBody"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="game-section d-flex align-items-center mt-5 mt-5">
+        <div class="container">
+          <div class="row g-4 mb-5">
+            
+            <!-- Challenges Quick Link -->
+             <div class="col-md-4 mb-4">
+              <div class="card h-100 text-center">
+                <div class="card-body d-flex flex-column">
+                  <div class="display-1 text-primary mb-3">🎯</div>
+                  <h5 class="card-title">Wellness Challenges</h5>
+                  <p class="card-text">Complete wellness challenges for points</p>
+
+                  <a href="challenges.html" class="btn btn-primary btn-sm mt-auto">View</a>
+                </div>
+              </div>
+             </div>
+
+             <!-- Pets Quick Link -->
+             <div class="col-md-4 mb-4">
+              <div class="card h-100 text-center">
+                <div class="card-body d-flex flex-column">
+                  <div class="display-1 text-primary mb-3">🐱</div>
+                  <h5 class="card-title">Pets</h5>
+                  <p class="card-text">Adopt a pet to join you and complete challenges together</p>
+                  <a href="pets.html" class="btn btn-primary btn-sm mt-auto">View</a>
+                </div>
+              </div>
+             </div>
+
+             <!-- Food Quick Link -->
+             <div class="col-md-4 mb-4">
+              <div class="card h-100 text-center">
+                <div class="card-body d-flex flex-column">
+                  <div class="display-1 text-primary mb-3">🛒</div>
+                  <h5 class="card-title">Store</h5>
+                  <p class="card-text">Buy food for your pet</p>
+                  <a href="food.html" class="btn btn-primary btn-sm mt-auto">View</a>
+                </div>
+              </div>
+             </div>
+
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
 
     <footer class="mt-auto py-3 bg-primary text-bg-primary text-center">
       <p class="m-0 py-0 px-4">
-        Created by Mr Siah Peih Wee for Educational Purposes in Backend
-        Development. Pokémon and Pokémon character names are trademarks of Nintendo. Artworks are from
-        <a class="link-light" href="https://pokeapi.co/" target="_blank"
-          >PokeAPI</a
-        >
+        &copy;Pet Guardian 2026 BED CA2. 
       </p>
     </footer>
 
@@ -112,8 +202,7 @@
     ></script>
     <script src="js/queryCmds.js" type="text/javascript"></script>
     <script src="js/getCurrentURL.js" type="text/javascript"></script>
-    <script src="js/showAllPokemonBasic.js" type="text/javascript"></script>
     <script src="js/userNavbarToggle.js" type="text/javascript"></script>
-    <script src="js/registerUser.js" type="text/javascript"></script>
+    <script src="js/leaderboard.js" type="text/javascript"></script>
   </body>
 </html>

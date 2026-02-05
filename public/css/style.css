@@ -1,0 +1,46 @@
+.hero-section .btn {
+    padding: 1rem 2.5rem !important;
+    font-size: 1.25rem !important;
+    font-weight: 700;
+    border-radius: 12px !important;
+}
+/* Leaderboard table styling  */
+.leaderboard-table{
+  width: 100%;
+  color: #fff !important;
+}
+
+.leaderboard-table thead th{
+  background: rgba(255,255,255,0.06) !important;
+  color: #fff !important;
+  border-bottom: 1px solid var(--pg-border) !important;
+  padding: 14px 14px;
+}
+
+.leaderboard-table tbody td{
+  background: rgba(255,255,255,0.03) !important;
+  color: #fff !important;
+  border-top: 1px solid var(--pg-border) !important;
+  padding: 14px 14px;
+}
+
+.leaderboard-table.table-hover tbody tr:hover td{
+  background: rgba(59,130,246,0.10) !important;
+  color: #fff !important;
+}
+
+/* Center leaderboard columns */
+.leaderboard-table th,
+.leaderboard-table td{
+  vertical-align: middle;
+}
+
+.leaderboard-table th:nth-child(1),
+.leaderboard-table td:nth-child(1),
+.leaderboard-table th:nth-child(4),
+.leaderboard-table td:nth-child(4),
+.leaderboard-table th:nth-child(5),
+.leaderboard-table td:nth-child(5){
+  text-align: center;
+}
+

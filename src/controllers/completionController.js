@@ -43,18 +43,17 @@ module.exports.createNewCompletion = (req, res, next) =>
 
             let pointsEarned = challenge.points;
             let bonusPoints = 0;
-            let updatedPets = [];
+            let petUpdated; 
             let hasHungryPet = false;
+            let petXpGain = 0;
             
             // Check if user has pets and their hunger levels
             if (petResults.length > 0) {
-                for (let i = 0; i < petResults.length; i++) {
-                    // Check if any pet has 0 hunger
-                    if (petResults[i].hunger <= 10) {
-                        hasHungryPet = true;
-                    }
-                }
+                const pet = petResults[0]; // only 1 pet 
                 
+                if (pet.hunger <= 10) {
+                    hasHungryPet = true;
+                }
                 // If any pet has 0 hunger, block challenge completion
                 if (hasHungryPet) {
                     res.status(403).json({
@@ -64,44 +63,38 @@ module.exports.createNewCompletion = (req, res, next) =>
                 }
                 
                 // Calculate bonus based on pet levels (5% per level)
-                let totalBonus = 0;
-                for (let i = 0; i < petResults.length; i++) {
-                    // Higher level pets give more bonus (5% per level)
-                    let petBonus = Math.floor(challenge.points * (petResults[i].level_id * 0.05));
-                    totalBonus += petBonus;
+                bonusPoints = Math.floor(challenge.points * (pet.level_id * 0.05));
+                pointsEarned += bonusPoints;
+
+                // Calculate pet XP gain (50% of challenge points)
+                const petXpGain = Math.floor(challenge.points * 0.5);
+                const newExperience = pet.experience + petXpGain;
+
+                // Decrease pet hunger by 10
+                const newHunger = Math.max(0, pet.hunger - 10);
+
                     
-                    // Calculate pet XP gain (50% of challenge points)
-                    const petXpGain = Math.floor(challenge.points * 0.5);
-                    const newExperience = petResults[i].experience + petXpGain;
-                    
-                    // Decrease pet hunger by 10
-                    const newHunger = Math.max(0, petResults[i].hunger - 10);
-                    
-                    // Store pet update info
-                    updatedPets.push({
-                        pet_id: petResults[i].pet_id,
-                        pet_name: petResults[i].pet_name,
-                        hunger: newHunger,
-                        level_id: petResults[i].level_id,
-                        experience: newExperience,
-                        bonus_given: petBonus,
-                        xp_gained: petXpGain
-                    });
-                    
-                    // Update pet hunger and experience in database
-                    userpetModel.updateStatsById({
-                        userpet_id: petResults[i].userpet_id,
-                        experience: newExperience,
-                        hunger: newHunger
-                    }, (hungerError) => {
-                        if (hungerError) {
-                            console.error("Error updating pet stats:", hungerError);
-                        }
-                    });
+                // Store pet update info
+                petUpdated = {
+                    pet_id: pet.pet_id,
+                    pet_name: pet.pet_name,
+                    hunger: newHunger,
+                    level_id: pet.level_id,
+                    experience: newExperience,
+                    bonus_given: bonusPoints,
+                    xp_gained: petXpGain
                 }
-                
-                bonusPoints = totalBonus;
-                pointsEarned += totalBonus;
+                    
+                // Update pet hunger and experience in database
+                userpetModel.updateStatsById({
+                    userpet_id: pet.userpet_id,
+                    experience: newExperience,
+                    hunger: newHunger
+                }, (hungerError) => {
+                    if (hungerError) {
+                        console.error("Error updating pet stats:", hungerError);
+                    }
+                });
             }
 
             // Update user points
@@ -140,9 +133,9 @@ module.exports.createNewCompletion = (req, res, next) =>
                         bonus_points: bonusPoints,
                         total_points_earned: pointsEarned,
                         new_total_points: newPoints,
-                        pets_updated: updatedPets,
+                        pets_updated: petUpdated,
                         message: petResults.length > 0 
-                            ? `Challenge completed! Earned ${pointsEarned} points (${challenge.points} base + ${bonusPoints} pet bonus). Pet hunger decreased by 10 and gained XP.` 
+                            ? `Challenge completed! Earned ${pointsEarned} points (${challenge.points} base + ${bonusPoints} pet bonus). Pet hunger decreased by 10 and gained ${petXpGain} XP.` 
                             : `Challenge completed! Earned ${pointsEarned} points.`
                     });
                 });

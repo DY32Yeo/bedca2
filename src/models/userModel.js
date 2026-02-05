@@ -47,10 +47,10 @@ module.exports.updateById = (data, callback) =>
 {
     const SQLSTATMENT = `
     UPDATE User 
-    SET username = ?, points = ?
+    SET username = ?
     WHERE user_id = ?;
     `;
-    const VALUES = [data.username, data.points, data.user_id];
+    const VALUES = [data.username, data.user_id];
 
     pool.query(SQLSTATMENT, VALUES, callback);
 }
@@ -84,16 +84,49 @@ module.exports.selectRank = (callback) =>
     SELECT 
         User.user_id,
         User.username,
-        UserPet.pet_name,
-        Pet.species,
-        Level.level_name, 
-        Userpet.level_id,
-        Userpet.experience
-    FROM User, UserPet, Pet, Level
-    WHERE User.user_id = UserPet.user_id
-    AND UserPet.pet_id = Pet.pet_id
-    AND UserPet.level_id = Level.level_id
-    ORDER BY UserPet.level_id DESC, UserPet.experience DESC
+
+        (
+            SELECT COUNT(*)
+            From UserCompletion
+            WHERE UserCompletion.user_id = User.user_id
+        ) AS total_completed,
+
+        (
+            SELECT IFNULL(SUM(WellnessChallenge.points), 0)
+            FROM UserCompletion, WellnessChallenge
+            WHERE UserCompletion.challenge_id = WellnessChallenge.challenge_id
+            AND UserCompletion.user_id = User.user_id
+        ) AS total_points_earned,
+
+        (
+            SELECT UserPet.pet_name 
+            FROM UserPet 
+            WHERE UserPet.user_id = User.user_id
+            LIMIT 1
+        ) AS pet_name,
+
+        (
+            SELECT Pet.species 
+            FROM UserPet, Pet
+            WHERE UserPet.pet_id = Pet.pet_id
+            AND UserPet.user_id = User.user_id
+            Limit 1
+        ) AS pet_species
+
+    FROM User
+    WHERE EXISTS (
+        SELECT 1 
+        FROM UserPet
+        WHERE UserPet.user_id = User.user_id
+    )
+
+    AND EXISTS (
+        SELECT 1
+        FROM UserCompletion
+        WHERE UserCompletion.user_id = User.user_id
+    )
+    ORDER BY total_points_earned DESC, total_completed DESC, User.user_id ASC
+    LIMIT 5
     `;
     pool.query(SQLSTATMENT, callback);
 }
