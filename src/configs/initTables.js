@@ -99,7 +99,7 @@ UNIQUE KEY unique_user_food (user_id, food_id)
 );
 
 INSERT INTO User (username, email, password, points) VALUES
-('Captain Rex', 'rex@gmail.com', '${hash}', 140),
+('Captain Rex', 'rex@gmail.com', '${hash}', 120),
 ('Commander Cody', 'cody@gmail.com', '${hash}', 50),
 ('Obi-Wan Kenobi', 'obi@gmail.com', '${hash}', 100),
 ('Anakin Skywalker', 'ani@gmail.com', '${hash}', 150),
@@ -121,23 +121,26 @@ INSERT INTO WellnessChallenge (creator_id, description, points) VALUES
 INSERT INTO UserCompletion (challenge_id, user_id, details) VALUES
 (1, 2, "Sleep is your brain's way of saying 'BRB, upgrading.' Don't skip the update!"),
 (1, 3, "Sleep is for the wise who don't want to look like a zombie in 4K."),
-(2, 1, "Climbed 100 levels of stairs"),
-(2, 1, "Climb stairs everyday instead of lift"),
-(2, 1, "Took the stairs back home"),
-(2, 1, "Used stairmaster in the gym"),
 (5, 1, "Meet up with friend for coffee"),
 (6, 1, "Tidy up my room"),
+(7, 1, "Helped my friend"),
 (7, 1, "Helped someone with their grocery bags"),
+(7, 1, "Help someone cross the road"),
+(7, 1, "Paid for someone's food"),
 (2, 2, "Took the stairs back home"),
 (2, 2, "Used stairmaster in the gym");
 
 INSERT INTO Pet (species, adopt_cost) VALUES 
 ('Dog', 30),
 ('Cat', 30),
-('Ferret', 60),
+('Deer', 50),
+('Otter', 60),
+('Squirrel', 100),
 ('Hamster', 100),
 ('Parrot', 150),
-('Seal', 200);
+('Seal', 200),
+('Alpaca', 250)
+;
 
 INSERT INTO UserPet (user_id, pet_id, pet_name) VALUES 
 (1, 1, 'Rex'),

@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () 
 {
-
     const leaderboardBody= document.getElementById("leaderboardBody");
 
     const callback = (responseStatus, responseData) => {
@@ -23,6 +22,7 @@ document.addEventListener("DOMContentLoaded", function ()
             const user = responseData[i];
 
             const petDisplay = user.pet_name ? user.pet_name : "-";
+            const totalPoints = user.total_points_earned || user.points || 0; // Handle both field names
 
             const tr = document.createElement("tr");
             tr.innerHTML = `
@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", function ()
                 <td>${user.username}</td>
                 <td>${petDisplay}</td>
                 <td>${user.total_completed}</td>
-                <td>${user.total_points_earned}</td>
+                <td>${totalPoints}</td> <!-- Show actual total points -->
             `;
 
             leaderboardBody.appendChild(tr)

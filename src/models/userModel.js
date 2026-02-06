@@ -91,12 +91,8 @@ module.exports.selectRank = (callback) =>
             WHERE UserCompletion.user_id = User.user_id
         ) AS total_completed,
 
-        (
-            SELECT IFNULL(SUM(WellnessChallenge.points), 0)
-            FROM UserCompletion, WellnessChallenge
-            WHERE UserCompletion.challenge_id = WellnessChallenge.challenge_id
-            AND UserCompletion.user_id = User.user_id
-        ) AS total_points_earned,
+        User.points AS total_points_earned,
+
 
         (
             SELECT UserPet.pet_name 

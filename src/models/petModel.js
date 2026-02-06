@@ -24,9 +24,9 @@ module.exports.deleteById = (data, callback) =>
 {
     const SQLSTATMENT = `
     DELETE FROM UserPet 
-    WHERE userpet_id = ?;
+    WHERE user_id = ?;
     `;
-    const VALUES = [data.userpet_id];
+    const VALUES = [data.user_id];
 
     pool.query(SQLSTATMENT, VALUES, callback);
 }

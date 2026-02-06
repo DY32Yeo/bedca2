@@ -9,9 +9,9 @@ const jwtMiddleware = require('../middlewares/jwtMiddleware');
 router.get('/', petController.readAllPet);
 
 // 2. user can delete the pet from their userpet_id
-router.delete('/:userpet_id', 
+router.delete('/', 
     jwtMiddleware.verifyToken, 
-    petController.deleteUserPetById
+    petController.deleteUserPet
 );
 
 module.exports = router;

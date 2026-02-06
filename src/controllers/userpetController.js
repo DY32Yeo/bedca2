@@ -136,7 +136,7 @@ module.exports.adoptPet = (req, res, next) =>
         }
     }
     // this updates the user points by deducting for adopting a pet
-    userModel.updateById(updateUserData, updateUserCallback);
+    userModel.updatePointsById(updateUserData, updateUserCallback);
 }
 
 module.exports.checkUserPetById = (req, res, next) =>

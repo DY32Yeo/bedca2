@@ -43,7 +43,6 @@ document.addEventListener("DOMContentLoaded", function ()
     const editPointsInput = document.getElementById("editPoints");
     const challengeText = document.getElementById("challengeText");
     const challengePoints = document.getElementById("challengePoints");
-    const challengeCreator = document.getElementById("challengeCreator");
     const deleteBtn = document.getElementById("deleteBtn");
     
     // Error divs
@@ -54,14 +53,36 @@ document.addEventListener("DOMContentLoaded", function ()
     let currentChallengeId = null;
     let userCompletions = {};
     let allChallenges = [];
+    let userTotalPoints = 0;
 
     // Check if user is logged in
     if (!token) {
         loginHint.classList.remove("d-none");
         createBtn.disabled = true;
         createBtn.classList.add("disabled");
+        // Load challenges without user data
+        loadAllChallenges();
     } else {
-        loadUserCompletions();
+        // Load user data and challenges
+        loadUserData();
+    }
+
+    // Load user data
+    function loadUserData() {
+        // 1. First get user's total points
+        const userPointsCallback = (status, data) => {
+            if (status === 200) {
+                userTotalPoints = data.points || 0;
+                totalPoints.textContent = userTotalPoints;
+                
+                // Now load user completions
+                loadUserCompletions();
+            } else {
+                loadUserCompletions();
+            }
+        };
+        
+        fetchMethod(currentUrl + "/api/users/" + userId, userPointsCallback, "GET", null, token);
     }
 
     // Load user's completion counts
@@ -69,7 +90,6 @@ document.addEventListener("DOMContentLoaded", function ()
         const callback = (status, data) => {
             if (status === 200) {
                 userCompletions = {};
-                let totalPointsEarned = 0;
                 let totalChallengesCompleted = 0;
                 
                 for (let i = 0; i < data.length; i++) {
@@ -77,20 +97,13 @@ document.addEventListener("DOMContentLoaded", function ()
                     const completionCount = data[i].completion_count || 1;
                     userCompletions[challengeId] = completionCount;
                     totalChallengesCompleted += completionCount;
-                    
-                    // Find the challenge to calculate points
-                    const challenge = allChallenges.find(c => c.challenge_id == challengeId);
-                    if (challenge) {
-                        totalPointsEarned += completionCount * challenge.points;
-                    }
                 }
                 
-                // Update stats
                 totalCompleted.textContent = totalChallengesCompleted;
-                totalPoints.textContent = totalPointsEarned;
-                
-                loadAllChallenges();
             }
+            
+            // Now load all challenges
+            loadAllChallenges();
         };
         
         fetchMethod(currentUrl + "/api/completion/user", callback, "GET", null, token);
@@ -146,7 +159,7 @@ document.addEventListener("DOMContentLoaded", function ()
                         
                         ${completionCount > 0 ? 
                             `<div class="alert alert-success py-2 mb-3">
-                                <small>You earned ${completionCount * challenge.points} points</small>
+                                <small>Completed ${completionCount} time(s)</small>
                             </div>` : 
                             '<div class="mb-4"></div>'
                         }
@@ -159,7 +172,7 @@ document.addEventListener("DOMContentLoaded", function ()
                                 `<button class="btn ${completionCount > 0 ? 'btn-success' : 'btn-primary'} w-100 complete-challenge" 
                                     data-id="${challenge.challenge_id}" 
                                     ${!token ? 'disabled' : ''}>
-                                    ${completionCount > 0 ? '✓ Complete Again' : 'Complete Challenge'}
+                                    ${completionCount > 0 ? '✅ Complete Again' : 'Complete Challenge'}
                                 </button>`
                             }
                         </div>
@@ -293,21 +306,29 @@ document.addEventListener("DOMContentLoaded", function ()
                 return;
             }
             
-            // Show success message with points
-            const pointsEarned = responseData.total_points_earned || responseData.points_earned || 0;
+            // Show success message with points from backend
+            const pointsEarned = responseData.total_points_earned || 0;
             const bonusPoints = responseData.bonus_points || 0;
+
+            let basePoints = responseData.points_earned;
+            if(!basePoints) {
+                const current = allChallenges.find((c => c.challenge_id == currentChallengeId));
+                basePoints = current ? current.points : 0;
+            }
             
-            let successMessage = `✓ Challenge completed! You earned ${pointsEarned} points`;
+            let successMessage = `✅ Challenge completed! You earned ${pointsEarned} points`;
             if (bonusPoints > 0) {
-                successMessage += ` (including ${bonusPoints} bonus points)`;
+                successMessage += ` (${basePoints} base + ${bonusPoints} bonus)`;
             }
             
             showSuccess(successMessage);
             completeModal.hide();
             detailsInput.value = "";
             
-            // Reload completions and challenges
-            loadUserCompletions();
+            // IMPORTANT: Reload user data to get updated points
+            setTimeout(() => {
+                loadUserData();
+            }, 500);
         };
         
         fetchMethod(
@@ -319,7 +340,7 @@ document.addEventListener("DOMContentLoaded", function ()
         );
     });
 
-    // Manage challenge form (update)
+    // Manage challenge form
     manageForm.addEventListener("submit", function(e) {
         e.preventDefault();
         hideError(manageError);
@@ -399,12 +420,5 @@ document.addEventListener("DOMContentLoaded", function ()
         setTimeout(function() {
             successMsg.classList.add("d-none");
         }, 3000);
-    }
-
-    // Initial load
-    if (token) {
-        loadUserCompletions();
-    } else {
-        loadAllChallenges();
     }
 });
