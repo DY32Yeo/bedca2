@@ -1,21 +1,21 @@
 const userModel = require("../models/userModel.js");
 const userpetModel = require("../models/userpetModel.js")
 
-module.exports.getUserPetById = (req, res, next) =>
+module.exports.getUserPet = (req, res, next) =>
 {
     const data = {
-        user_id: req.params.user_id
+        user_id: res.locals.userId
     }
 
     const callback = (error, results, fields) => {
         if (error) {
-            console.error("Error getUserPetById:", error);
+            console.error("Error getUserPet:", error);
             res.status(500).json(error);
         } else {
             if(results.length == 0) 
             {
                 res.status(404).json({
-                    message: "user_id does not exist"
+                    message: "User has no pet"
                 });
             }
             else res.status(200).json(results);

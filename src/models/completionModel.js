@@ -37,3 +37,15 @@ module.exports.getCompletionById = (data, callback) =>
 
     pool.query(SQLSTATMENT, VALUES, callback);
 }
+
+module.exports.countTotalByUserId = (data, callback) =>
+{
+    const SQLSTATMENT = `
+    SELECT COUNT(*) AS completion_count
+    FROM UserCompletion
+    WHERE user_id = ?;
+    `;
+    const VALUES = [data.user_id];
+
+    pool.query(SQLSTATMENT, VALUES, callback);
+}

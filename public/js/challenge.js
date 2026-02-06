@@ -19,7 +19,11 @@ document.addEventListener("DOMContentLoaded", function ()
     const challengesContainer = document.getElementById("challengesContainer");
     const errorMsg = document.getElementById("errorMsg");
     const successMsg = document.getElementById("successMsg");
-    
+
+    // REMOVED: Timer elements (no longer needed)
+    // const coolDownAlert = document.getElementById("coolDownAlert");
+    // const cooldownTimer = document.getElementById("cooldownTimer");
+
     // Stats elements
     const totalCompleted = document.getElementById("totalCompleted");
     const totalPoints = document.getElementById("totalPoints");
@@ -43,6 +47,7 @@ document.addEventListener("DOMContentLoaded", function ()
     const editPointsInput = document.getElementById("editPoints");
     const challengeText = document.getElementById("challengeText");
     const challengePoints = document.getElementById("challengePoints");
+    const challengeCreatorBadge = document.getElementById("challengeCreatorBadge");
     const deleteBtn = document.getElementById("deleteBtn");
     
     // Error divs
@@ -55,6 +60,11 @@ document.addEventListener("DOMContentLoaded", function ()
     let allChallenges = [];
     let userTotalPoints = 0;
 
+    // Per-challenge timer variables
+    let challengeCooldowns = {}; // Store cooldown end times per challenge
+    let cooldownInterval = null;
+    const COOLDOWN_MINUTES = 5; // 5 minutes cooldown per challenge
+
     // Check if user is logged in
     if (!token) {
         loginHint.classList.remove("d-none");
@@ -65,10 +75,105 @@ document.addEventListener("DOMContentLoaded", function ()
     } else {
         // Load user data and challenges
         loadUserData();
+        loadAllChallengeCooldowns();
+    }
+
+    function loadAllChallengeCooldowns() {
+        if (!userId) return;
+        
+        challengeCooldowns = {};
+        
+        // Start interval for updating button displays
+        if (cooldownInterval) clearInterval(cooldownInterval);
+        cooldownInterval = setInterval(updateAllChallengeCooldowns, 1000);
+    }
+    
+    function startChallengeCooldown(challengeId) {
+        if (!userId || !challengeId) return;
+        
+        const cooldownEndTime = Date.now() + (COOLDOWN_MINUTES * 60 * 1000);
+        challengeCooldowns[challengeId] = cooldownEndTime;
+        
+        updateChallengeButton(challengeId);
+    }
+    
+    function isChallengeOnCooldown(challengeId) {
+        if (!challengeId || !challengeCooldowns[challengeId]) return false;
+        
+        const now = Date.now();
+        return now < challengeCooldowns[challengeId];
+    }
+    
+    function getRemainingCooldownTime(challengeId) {
+        if (!isChallengeOnCooldown(challengeId)) return 0;
+        
+        const now = Date.now();
+        return challengeCooldowns[challengeId] - now;
+    }
+    
+    function updateAllChallengeCooldowns() {
+        // Update each challenge's cooldown status
+        for (const challengeId in challengeCooldowns) {
+            updateChallengeCooldownStatus(challengeId);
+        }
+    }
+    
+    function updateChallengeCooldownStatus(challengeId) {
+        if (!isChallengeOnCooldown(challengeId)) {
+            // Cooldown expired, clean up
+            if (challengeCooldowns[challengeId]) {
+                delete challengeCooldowns[challengeId];
+            }
+            
+            // Update button for this challenge
+            updateChallengeButton(challengeId);
+            return false;
+        }
+        
+        // Update button for this challenge
+        updateChallengeButton(challengeId);
+        return true;
+    }
+    
+    function updateChallengeButton(challengeId) {
+        const button = document.querySelector(`.complete-challenge[data-id="${challengeId}"]`);
+        if (!button) return;
+        
+        const isCooldownActive = isChallengeOnCooldown(challengeId);
+        const challenge = allChallenges.find(c => c.challenge_id == challengeId);
+        const completionCount = userCompletions[challengeId] || 0;
+        
+        if (isCooldownActive) {
+            const remaining = getRemainingCooldownTime(challengeId);
+            const minutes = Math.floor(remaining / 60000);
+            const seconds = Math.floor((remaining % 60000) / 1000);
+            
+            button.disabled = true;
+            button.textContent = `⏳ ${minutes}:${seconds.toString().padStart(2, '0')}`;
+            button.classList.remove('btn-primary', 'btn-success');
+            button.classList.add('btn-secondary');
+        } else {
+            // Button is available
+            button.disabled = false;
+            
+            // ========= CHANGED: Removed "Again" from button text =========
+            // Just show "Complete" regardless of previous completions
+            button.textContent = 'Complete';
+            button.classList.remove('btn-secondary');
+            
+            // Use green if previously completed, blue if never completed
+            if (completionCount > 0) {
+                button.classList.add('btn-success');
+            } else {
+                button.classList.add('btn-primary');
+            }
+        }
     }
 
     // Load user data
     function loadUserData() {
+        if (!userId) return;
+        
         // 1. First get user's total points
         const userPointsCallback = (status, data) => {
             if (status === 200) {
@@ -87,6 +192,11 @@ document.addEventListener("DOMContentLoaded", function ()
 
     // Load user's completion counts
     function loadUserCompletions() {
+        if (!token || !userId) {
+            loadAllChallenges();
+            return;
+        }
+        
         const callback = (status, data) => {
             if (status === 200) {
                 userCompletions = {};
@@ -126,6 +236,11 @@ document.addEventListener("DOMContentLoaded", function ()
             }
             
             displayChallenges();
+            
+            // Update cooldown displays after loading challenges
+            if (userId) {
+                updateAllChallengeCooldowns();
+            }
         };
         
         fetchMethod(currentUrl + "/api/challenges", callback, "GET");
@@ -137,23 +252,52 @@ document.addEventListener("DOMContentLoaded", function ()
         
         for (let i = 0; i < allChallenges.length; i++) {
             const challenge = allChallenges[i];
-            const completionCount = userCompletions[challenge.challenge_id] || 0;
+            const challengeId = challenge.challenge_id;
+            const completionCount = userCompletions[challengeId] || 0;
             const isCreator = userId == challenge.creator_id;
             
+            const isOnCooldown = isChallengeOnCooldown(challengeId);
+            const canComplete = token && !isOnCooldown;
+
             const col = document.createElement("div");
             col.className = "col-md-6 col-lg-4 mb-4";
+            
+            // ========= UPDATED: Simple button text =========
+            let buttonText = 'Complete';
+            let buttonClass = 'btn-primary';
+            
+            if (!token) {
+                buttonText = 'Login to Complete';
+                buttonClass = 'btn-secondary';
+            } else if (isOnCooldown) {
+                const remaining = getRemainingCooldownTime(challengeId);
+                const minutes = Math.floor(remaining / 60000);
+                const seconds = Math.floor((remaining % 60000) / 1000);
+                buttonText = `⏳ ${minutes}:${seconds.toString().padStart(2, '0')}`;
+                buttonClass = 'btn-secondary';
+            } else if (completionCount > 0) {
+                // Still use "Complete" but with success color
+                buttonText = 'Complete';
+                buttonClass = 'btn-success';
+            }
             
             col.innerHTML = `
                 <div class="card h-100 text-center ${completionCount > 0 ? 'border-success border-2' : ''}">
                     <div class="card-body d-flex flex-column">
                         <div class="display-4 text-primary mb-3">🎯</div>
-                        <h5 class="card-title fw-bold">Challenge #${challenge.challenge_id}</h5>
+                        <h5 class="card-title fw-bold">Challenge #${challengeId}</h5>
                         <p class="card-text flex-grow-1">${challenge.description}</p>
                         
                         <div class="mb-3">
                             <span class="badge bg-primary fs-6">${challenge.points} points</span>
                             ${completionCount > 0 ? 
                                 `<span class="badge bg-success fs-6 ms-2">${completionCount}x</span>` : ''
+                            }
+                            ${isCreator ? 
+                                `<span class="badge bg-info fs-6 ms-2">Your Challenge</span>` : ''
+                            }
+                            ${isOnCooldown ? 
+                                `<span class="badge bg-warning fs-6 ms-2">⏳ Cooldown</span>` : ''
                             }
                         </div>
                         
@@ -166,13 +310,13 @@ document.addEventListener("DOMContentLoaded", function ()
                         
                         <div class="mt-auto">
                             ${isCreator ? 
-                                `<button class="btn btn-outline-warning w-100 manage-challenge" data-id="${challenge.challenge_id}">
+                                `<button class="btn btn-outline-warning w-100 manage-challenge" data-id="${challengeId}">
                                     Manage Challenge
                                 </button>` : 
-                                `<button class="btn ${completionCount > 0 ? 'btn-success' : 'btn-primary'} w-100 complete-challenge" 
-                                    data-id="${challenge.challenge_id}" 
-                                    ${!token ? 'disabled' : ''}>
-                                    ${completionCount > 0 ? '✅ Complete Again' : 'Complete Challenge'}
+                                `<button class="btn ${buttonClass} w-100 complete-challenge" 
+                                    data-id="${challengeId}" 
+                                    ${!canComplete ? 'disabled' : ''}>
+                                    ${buttonText}
                                 </button>`
                             }
                         </div>
@@ -207,15 +351,21 @@ document.addEventListener("DOMContentLoaded", function ()
         const challenge = allChallenges.find(c => c.challenge_id == challengeId);
         if (!challenge) return;
         
-        // Check if user is trying to complete their own challenge
-        if (challenge.creator_id == userId) {
-            showError(completeError, "You cannot complete your own challenge");
+        // Check per-challenge cooldown
+        if (isChallengeOnCooldown(challengeId)) {
+            showError(completeError, "Please wait before completing this challenge again");
             completeModal.show();
             return;
         }
-        
+
         challengeText.textContent = challenge.description;
         challengePoints.textContent = challenge.points + " points";
+
+        if (challenge.creator_id == userId) {
+            challengeCreatorBadge.classList.remove("d-none");
+        } else {
+            challengeCreatorBadge.classList.add("d-none");
+        }
         
         detailsInput.value = "";
         hideError(completeError);
@@ -291,6 +441,11 @@ document.addEventListener("DOMContentLoaded", function ()
             return;
         }
         
+        if (isChallengeOnCooldown(currentChallengeId)) {
+            showError(completeError, "Please wait before completing this challenge again");
+            return;
+        }
+
         if (!detailsInput.value.trim()) {
             showError(completeError, "Please provide details");
             return;
@@ -306,6 +461,9 @@ document.addEventListener("DOMContentLoaded", function ()
                 return;
             }
             
+            // Start per-challenge cooldown
+            startChallengeCooldown(currentChallengeId);
+
             // Show success message with points from backend
             const pointsEarned = responseData.total_points_earned || 0;
             const bonusPoints = responseData.bonus_points || 0;

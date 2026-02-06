@@ -1,7 +1,13 @@
-document.addEventListener("DOMContentLoaded", function () 
-{
+// profile.js - Using the /api/users/info endpoint
+document.addEventListener("DOMContentLoaded", function () {
     const token = localStorage.getItem("token");
     
+    // Check if user is logged in
+    if (!token) {
+        window.location.href = "login.html";
+        return;
+    }
+
     // Get user ID from token
     let userId = null;
     if (token) {
@@ -13,224 +19,230 @@ document.addEventListener("DOMContentLoaded", function ()
     }
 
     // Get DOM elements
-    const loginRequired = document.getElementById("loginRequired");
-    const profileContent = document.getElementById("profileContent");
     const errorMsg = document.getElementById("errorMsg");
     const successMsg = document.getElementById("successMsg");
     
-    // Profile info elements
-    const usernameInput = document.getElementById("username");
-    const emailInput = document.getElementById("email");
-    const currentPasswordInput = document.getElementById("currentPassword");
-    const newPasswordInput = document.getElementById("newPassword");
-    const confirmPasswordInput = document.getElementById("confirmPassword");
-    const editUsernameBtn = document.getElementById("editUsernameBtn");
-    const profileForm = document.getElementById("profileForm");
-    const memberSince = document.getElementById("memberSince");
-    const userIdSpan = document.getElementById("userId");
-    
-    // Stats elements
-    const totalPoints = document.getElementById("totalPoints");
+    // User info elements
+    const username = document.getElementById("username");
+    const email = document.getElementById("email");
+    const createdOn = document.getElementById("createdOn");
+    const points = document.getElementById("points");
     const completedChallenges = document.getElementById("completedChallenges");
-    const totalPointsEarned = document.getElementById("totalPointsEarned");
-    const leaderboardRank = document.getElementById("leaderboardRank");
+    const totalPoints = document.getElementById("totalPoints");
+    const ranking = document.getElementById("ranking");
     
     // Pet elements
     const petSection = document.getElementById("petSection");
-    const petCard = document.getElementById("petCard");
-    const noPetMessage = document.getElementById("noPetMessage");
+    const noPetSection = document.getElementById("noPetSection");
+    const petHeader = document.getElementById("petHeader");
     const petEmoji = document.getElementById("petEmoji");
     const petName = document.getElementById("petName");
+    const petSpecies = document.getElementById("petSpecies");
+    const petAdoptedOn = document.getElementById("petAdoptedOn");
     const petLevel = document.getElementById("petLevel");
     const petExperience = document.getElementById("petExperience");
+    const petHungerBar = document.getElementById("petHungerBar");
     const petHunger = document.getElementById("petHunger");
-    const petSpecies = document.getElementById("petSpecies");
-    const petAdoptedDate = document.getElementById("petAdoptedDate");
-    const feedPetBtn = document.getElementById("feedPetBtn");
-    const levelPetBtn = document.getElementById("levelPetBtn");
-    const releasePetBtn = document.getElementById("releasePetBtn");
+    const petBonus = document.getElementById("petBonus");
     
     // Inventory elements
-    const inventoryContainer = document.getElementById("inventoryContainer");
-    const emptyInventory = document.getElementById("emptyInventory");
+    const inventoryEmpty = document.getElementById("inventoryEmpty");
+    const inventoryItems = document.getElementById("inventoryItems");
     
-    // Danger zone
+    // Buttons
+    const editProfileBtn = document.getElementById("editProfileBtn");
     const deleteAccountBtn = document.getElementById("deleteAccountBtn");
+    const releasePetBtn = document.getElementById("releasePetBtn");
+    const feedPetBtn = document.getElementById("feedPetBtn");
+    const levelUpPetBtn = document.getElementById("levelUpPetBtn");
+    const editPetNameBtn = document.getElementById("editPetNameBtn");
     
     // Modals
-    const feedModal = new bootstrap.Modal(document.getElementById('feedModal'));
-    const levelModal = new bootstrap.Modal(document.getElementById('levelModal'));
-    const confirmReleaseModal = new bootstrap.Modal(document.getElementById('confirmReleaseModal'));
+    const editProfileModal = new bootstrap.Modal(document.getElementById('editProfileModal'));
+    const editPetNameModal = new bootstrap.Modal(document.getElementById('editPetNameModal'));
+    const feedPetModal = new bootstrap.Modal(document.getElementById('feedPetModal'));
+    const levelUpModal = new bootstrap.Modal(document.getElementById('levelUpModal'));
     const confirmDeleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+    const confirmReleaseModal = new bootstrap.Modal(document.getElementById('confirmReleaseModal'));
     
-    // Feed modal elements
-    const feedPetEmoji = document.getElementById("feedPetEmoji");
-    const feedPetName = document.getElementById("feedPetName");
-    const feedPetHunger = document.getElementById("feedPetHunger");
+    // Forms
+    const editProfileForm = document.getElementById("editProfileForm");
+    const editPetNameForm = document.getElementById("editPetNameForm");
+    const feedPetForm = document.getElementById("feedPetForm");
+    
+    // Form inputs
+    const editUsername = document.getElementById("editUsername");
+    const newPassword = document.getElementById("newPassword");
+    const confirmPassword = document.getElementById("confirmPassword");
+    const currentPassword = document.getElementById("currentPassword");
+    const newPetName = document.getElementById("newPetName");
     const foodSelect = document.getElementById("foodSelect");
     const feedQuantity = document.getElementById("feedQuantity");
-    const feedInfoText = document.getElementById("feedInfoText");
-    const feedForm = document.getElementById("feedForm");
-    const feedError = document.getElementById("feedError");
+    const foodAvailable = document.getElementById("foodAvailable");
+    const confirmLevelUpBtn = document.getElementById("confirmLevelUpBtn");
     
-    // Level modal elements
-    const levelPetEmoji = document.getElementById("levelPetEmoji");
-    const levelPetName = document.getElementById("levelPetName");
-    const levelCurrentLevel = document.getElementById("levelCurrentLevel");
-    const levelCurrentXP = document.getElementById("levelCurrentXP");
-    const levelProgressBar = document.getElementById("levelProgressBar");
-    const currentBonus = document.getElementById("currentBonus");
-    const nextBonus = document.getElementById("nextBonus");
-    const levelUpText = document.getElementById("levelUpText");
-    const levelUpBtn = document.getElementById("levelUpBtn");
-    const levelError = document.getElementById("levelError");
-    const levelUpInfo = document.getElementById("levelUpInfo");
+    // Food preview elements
+    const foodPreview = document.getElementById("foodPreview");
+    const previewHunger = document.getElementById("previewHunger");
+    const previewXP = document.getElementById("previewXP");
+    const previewTotal = document.getElementById("previewTotal");
     
-    // Release modal elements
-    const releasePetName = document.getElementById("releasePetName");
-    const confirmReleaseBtn = document.getElementById("confirmReleaseBtn");
+    // Level up elements
+    const levelUpEmoji = document.getElementById("levelUpEmoji");
+    const levelUpPetName = document.getElementById("levelUpPetName");
+    const currentLevelText = document.getElementById("currentLevelText");
+    const currentExpValue = document.getElementById("currentExpValue");
+    const requiredExpValue = document.getElementById("requiredExpValue");
+    const expNeeded = document.getElementById("expNeeded");
     
-    // Delete modal elements
+    // Current pet status
+    const currentHunger = document.getElementById("currentHunger");
+    const currentExperience = document.getElementById("currentExperience");
+    const currentLevel = document.getElementById("currentLevel");
+    
+    // Error divs
+    const editProfileError = document.getElementById("editProfileError");
+    const editPetNameError = document.getElementById("editPetNameError");
+    const feedPetError = document.getElementById("feedPetError");
+    const levelUpError = document.getElementById("levelUpError");
+
+    // Confirm buttons
     const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+    const confirmReleaseBtn = document.getElementById("confirmReleaseBtn");
 
     let userData = null;
     let userPet = null;
-    let userCompletions = [];
-    let allFood = [];
-    let userInventory = [];
-    let availableLevels = [];
-    let currentFoodItem = null;
+    let inventoryData = [];
+    let allLevels = [];
+    let foodItems = [];
 
-    // Check if user is logged in
-    if (!token || !userId) {
-        loginRequired.classList.remove("d-none");
-        return;
-    } else {
-        profileContent.classList.remove("d-none");
-        loadUserProfile();
-    }
+    // Initial load
+    loadAllUserData();
+    loadAllLevels();
+    loadFoodItems();
 
-    // Load user profile data
-    function loadUserProfile() {
-        userIdSpan.textContent = `#${userId}`;
+    // Load all user data from /api/users/info endpoint
+    function loadAllUserData() {
+        if (!userId) {
+            window.location.href = "login.html";
+            return;
+        }
         
-        // Load user data
-        loadUserData();
-        // Load user pet
-        loadUserPet();
-        // Load user completions
-        loadUserCompletions();
-        // Load inventory
-        loadInventory();
-        // Load all food items
-        loadAllFood();
-        // Load levels
-        loadLevels();
-    }
-
-    // Load user data (points, username, email)
-    function loadUserData() {
-        const callback = (status, data) => {
-            if (status === 200) {
-                userData = data;
-                updateUserInfo();
-            } else {
-                showError(errorMsg, "Failed to load user data");
-            }
-        };
+        console.log("Loading user data from /api/users/info for user ID:", userId);
         
-        fetchMethod(currentUrl + "/api/users/" + userId, callback, "GET", null, token);
-    }
-
-    // Load user's pet if exists
-    function loadUserPet() {
-        const callback = (status, data) => {
+        fetchMethod(currentUrl + "/api/users/info", (status, response) => {
+            console.log("User info response:", status, response);
+            
             if (status === 200) {
-                if (data.length > 0) {
-                    userPet = data[0];
+                // Update user basic info
+                if (response.user) {
+                    userData = response.user;
+                    updateUserInfo();
+                }
+                
+                // Update pet info
+                if (response.pet && response.pet.length > 0) {
+                    userPet = response.pet[0];
                     updatePetInfo();
-                    petCard.classList.remove("d-none");
-                    noPetMessage.classList.add("d-none");
+                    petSection.classList.remove("d-none");
+                    noPetSection.classList.add("d-none");
+                    
+                    // Show edit pet name button if user has pet
+                    if (editPetNameBtn) {
+                        editPetNameBtn.classList.remove("d-none");
+                    }
                 } else {
                     userPet = null;
-                    petCard.classList.add("d-none");
-                    noPetMessage.classList.remove("d-none");
+                    petSection.classList.add("d-none");
+                    noPetSection.classList.remove("d-none");
+                    
+                    // Hide edit pet name button if no pet
+                    if (editPetNameBtn) {
+                        editPetNameBtn.classList.add("d-none");
+                    }
                 }
-            } else if (status === 404) {
-                userPet = null;
-                petCard.classList.add("d-none");
-                noPetMessage.classList.remove("d-none");
+                
+                // Update inventory
+                if (response.inventory && response.inventory.length > 0) {
+                    inventoryData = response.inventory;
+                    displayInventory();
+                    inventoryEmpty.classList.add("d-none");
+                } else {
+                    inventoryData = [];
+                    inventoryEmpty.classList.remove("d-none");
+                }
+                
+                // Update completion count
+                if (response.completion_count !== undefined) {
+                    completedChallenges.textContent = response.completion_count;
+                    // Use actual user points for total points
+                    if (userData && userData.points) {
+                        totalPoints.textContent = userData.points;
+                    }
+                }
+                
+                // Load leaderboard rank
+                loadLeaderboardRank();
+                
             } else {
-                showError(errorMsg, "Failed to load pet data");
+                showError(errorMsg, "Failed to load profile data: " + (response.message || "Unknown error"));
             }
-        };
-        
-        fetchMethod(currentUrl + "/api/userpet/" + userId, callback, "GET", null, token);
+        }, "GET", null, token);
     }
 
-    // Load user completions for stats
-    function loadUserCompletions() {
-        const callback = (status, data) => {
-            if (status === 200) {
-                userCompletions = data;
-                updateStats();
-            }
-        };
-        
-        fetchMethod(currentUrl + "/api/completion/user", callback, "GET", null, token);
-    }
-
-    // Load user inventory
-    function loadInventory() {
-        const callback = (status, data) => {
-            if (status === 200) {
-                userInventory = data;
-                displayInventory();
+    // Load leaderboard rank
+    function loadLeaderboardRank() {
+        fetchMethod(currentUrl + "/api/users/leaderboard", (status, data) => {
+            if (status === 200 && data) {
+                // Find user in leaderboard
+                for (let i = 0; i < data.length; i++) {
+                    if (data[i].user_id == userId) {
+                        ranking.textContent = "#" + (i + 1);
+                        return;
+                    }
+                }
+                ranking.textContent = "Not Ranked";
             } else {
-                inventoryContainer.innerHTML = '<div class="col-12 text-center py-3"><p class="text-muted">Failed to load inventory</p></div>';
+                ranking.textContent = "Not Ranked";
             }
-        };
-        
-        fetchMethod(currentUrl + "/api/inventory", callback, "GET", null, token);
+        }, "GET");
     }
 
-    // Load all food items
-    function loadAllFood() {
-        const callback = (status, data) => {
+    // Load all levels for level up checking
+    function loadAllLevels() {
+        fetchMethod(currentUrl + "/api/level", (status, data) => {
             if (status === 200) {
-                allFood = data;
-                populateFoodSelect();
+                allLevels = data;
             }
-        };
-        
-        fetchMethod(currentUrl + "/api/food", callback, "GET");
+        }, "GET");
     }
 
-    // Load all levels
-    function loadLevels() {
-        const callback = (status, data) => {
+    // Load food items for dropdown
+    function loadFoodItems() {
+        fetchMethod(currentUrl + "/api/food", (status, data) => {
             if (status === 200) {
-                availableLevels = data;
+                foodItems = data;
             }
-        };
-        
-        fetchMethod(currentUrl + "/api/level", callback, "GET");
+        }, "GET");
     }
 
     // Update user info display
     function updateUserInfo() {
         if (!userData) return;
         
-        usernameInput.value = userData.username || "";
-        emailInput.value = userData.email || "";
+        username.textContent = userData.username || "Unknown";
+        email.textContent = userData.email || "Not provided";
+        points.textContent = userData.points || 0;
         
         if (userData.created_on) {
             const date = new Date(userData.created_on);
-            memberSince.textContent = date.toLocaleDateString('en-US', {
+            createdOn.textContent = date.toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric'
             });
+        } else {
+            createdOn.textContent = "Unknown";
         }
     }
 
@@ -239,438 +251,169 @@ document.addEventListener("DOMContentLoaded", function ()
         if (!userPet) return;
         
         // Set pet emoji based on species
-        const emoji = getPetEmoji(userPet.species || userPet.pet_id);
+        const emoji = getPetEmoji(userPet.species);
         petEmoji.textContent = emoji;
         
-        petName.textContent = userPet.pet_name || "Unnamed Pet";
+        const petDisplayName = userPet.pet_name || "Unnamed Pet";
+        petName.textContent = petDisplayName;
+        petSpecies.textContent = userPet.species || "Unknown";
+        petHeader.textContent = petDisplayName;
+        
+        if (userPet.adopted_on) {
+            const date = new Date(userPet.adopted_on);
+            petAdoptedOn.textContent = date.toLocaleDateString();
+        } else {
+            petAdoptedOn.textContent = "Unknown";
+        }
+        
         petLevel.textContent = "Level " + (userPet.level_id || 1);
         petExperience.textContent = (userPet.experience || 0) + " XP";
         
         const hunger = userPet.hunger || 100;
         petHunger.textContent = hunger + "%";
-        petHunger.className = hunger <= 10 ? "badge bg-danger" : "badge bg-warning";
+        petHungerBar.style.width = hunger + "%";
+        petHungerBar.textContent = hunger + "%";
+        petHungerBar.className = hunger <= 10 ? "progress-bar bg-danger" : "progress-bar bg-warning";
         
-        petSpecies.textContent = userPet.species || "Unknown";
-        
-        if (userPet.adopted_on) {
-            const date = new Date(userPet.adopted_on);
-            petAdoptedDate.textContent = date.toLocaleDateString();
-        }
+        const bonusPercentage = (userPet.level_id || 1) * 10;
+        petBonus.textContent = bonusPercentage + "%";
     }
 
-    // Update stats display
-    function updateStats() {
-        if (!userData) return;
+    // Get pet emoji
+    function getPetEmoji(species) {
+        if (!species) return '🐾';
         
-        totalPoints.textContent = userData.points || 0;
+        const speciesLower = species.toLowerCase();
         
-        // Calculate completed challenges
-        let completedCount = 0;
-        let totalPointsFromChallenges = 0;
+        if (speciesLower.includes('dog')) return '🐕';
+        if (speciesLower.includes('cat')) return '🐈';
+        if (speciesLower.includes('deer')) return '🦌';
+        if (speciesLower.includes('otter')) return '🦦';
+        if (speciesLower.includes('squirrel')) return '🐿️';
+        if (speciesLower.includes('hamster')) return '🐹';
+        if (speciesLower.includes('parrot')) return '🦜';
+        if (speciesLower.includes('seal')) return '🦭';
+        if (speciesLower.includes('alpaca')) return '🦙';
         
-        for (let i = 0; i < userCompletions.length; i++) {
-            completedCount += userCompletions[i].completion_count || 0;
-            // Note: We need to load all challenges to calculate total points earned
-            // For now, we'll show completion count
-        }
-        
-        completedChallenges.textContent = completedCount;
-        
-        // For leaderboard rank, we'd need to calculate it from the leaderboard API
-        // For now, we'll show placeholder
-        leaderboardRank.textContent = completedCount > 0 ? "Top 50%" : "Not Ranked";
+        return '🐾';
     }
 
-    // Display inventory items
+    // Display inventory
     function displayInventory() {
-        inventoryContainer.innerHTML = "";
+        inventoryItems.innerHTML = "";
         
-        if (!userInventory || userInventory.length === 0) {
-            inventoryContainer.classList.add("d-none");
-            emptyInventory.classList.remove("d-none");
+        if (!inventoryData || inventoryData.length === 0) {
+            inventoryEmpty.classList.remove("d-none");
             return;
         }
         
-        inventoryContainer.classList.remove("d-none");
-        emptyInventory.classList.add("d-none");
-        
-        for (let i = 0; i < userInventory.length; i++) {
-            const item = userInventory[i];
+        for (let i = 0; i < inventoryData.length; i++) {
+            const item = inventoryData[i];
             
             const col = document.createElement("div");
-            col.className = "col-md-4 col-lg-3";
+            col.className = "col-md-6 col-lg-4 mb-3";
             
             col.innerHTML = `
-                <div class="inventory-item card h-100">
+                <div class="card h-100">
                     <div class="card-body">
-                        <h6 class="card-title fw-bold">${item.food_name}</h6>
-                        <div class="mb-2">
-                            <span class="badge bg-primary">${item.quantity} left</span>
+                        <h5 class="card-title fw-bold">${item.food_name || "Unknown Food"}</h5>
+                        <div class="mb-3">
+                            <span class="badge bg-primary me-2">${item.hunger_restore || 0} hunger</span>
+                            <span class="badge bg-success me-2">${item.xp_gain || 0} XP</span>
+                            <span class="badge bg-secondary">${item.quantity || 0} left</span>
                         </div>
-                        <div class="small text-muted">
-                            <div>Hunger: +${item.hunger_restore}%</div>
-                            <div>XP: +${item.xp_gain}</div>
-                        </div>
-                        <div class="mt-3">
-                            <button class="btn btn-sm btn-outline-primary use-food-btn" 
-                                    data-id="${item.food_id}"
-                                    data-name="${item.food_name}"
-                                    data-hunger="${item.hunger_restore}"
-                                    data-xp="${item.xp_gain}"
-                                    data-quantity="${item.quantity}">
-                                Use to Feed
-                            </button>
+                        <div class="text-muted small">
+                            <div>Cost: ${item.cost || 0} points</div>
                         </div>
                     </div>
                 </div>
             `;
             
-            inventoryContainer.appendChild(col);
+            inventoryItems.appendChild(col);
         }
         
-        // Add event listeners to use food buttons
-        document.querySelectorAll('.use-food-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const foodId = this.getAttribute('data-id');
-                const foodName = this.getAttribute('data-name');
-                const hungerRestore = this.getAttribute('data-hunger');
-                const xpGain = this.getAttribute('data-xp');
-                const quantity = this.getAttribute('data-quantity');
+        inventoryEmpty.classList.add("d-none");
+    }
+
+    // ===== EVENT HANDLERS =====
+    
+    // Edit profile button
+    editProfileBtn.addEventListener("click", function() {
+        if (!userData) return;
+        
+        editUsername.value = userData.username || "";
+        newPassword.value = "";
+        confirmPassword.value = "";
+        currentPassword.value = "";
+        hideError(editProfileError);
+        editProfileModal.show();
+    });
+
+    // Edit profile form
+    editProfileForm.addEventListener("submit", function(e) {
+        e.preventDefault();
+        hideError(editProfileError);
+        
+        // Validate passwords match if changing password
+        if (newPassword.value && newPassword.value !== confirmPassword.value) {
+            showError(editProfileError, "New passwords do not match");
+            return;
+        }
+        
+        if (!currentPassword.value) {
+            showError(editProfileError, "Current password is required");
+            return;
+        }
+        
+        // Prepare data for password verification first
+        const loginData = {
+            username: userData.username,
+            password: currentPassword.value
+        };
+        
+        // First verify current password
+        const verifyCallback = (status, responseData) => {
+            if (status !== 200) {
+                showError(editProfileError, "Current password is incorrect");
+                return;
+            }
+            
+            // Password verified, now update profile
+            const updateData = {
+                username: editUsername.value
+            };
+            
+            // Only add password if it was provided
+            if (newPassword.value) {
+                updateData.password = newPassword.value;
+            }
+            
+            const updateCallback = (updateStatus, updateResponse) => {
+                if (updateStatus !== 200) {
+                    showError(editProfileError, updateResponse.message || "Failed to update profile");
+                    return;
+                }
                 
-                openFeedModalWithFood(foodId, foodName, hungerRestore, xpGain, quantity);
-            });
-        });
-    }
-
-    // Populate food select dropdown
-    function populateFoodSelect() {
-        foodSelect.innerHTML = '<option value="">Choose food from inventory...</option>';
-        
-        if (!userInventory || userInventory.length === 0) return;
-        
-        for (let i = 0; i < userInventory.length; i++) {
-            const item = userInventory[i];
-            const food = allFood.find(f => f.food_id == item.food_id);
-            if (food) {
-                const option = document.createElement("option");
-                option.value = item.food_id;
-                option.textContent = `${item.food_name} (${item.quantity} left) - +${food.hunger_restore}% Hunger, +${food.xp_gain} XP`;
-                option.setAttribute('data-hunger', food.hunger_restore);
-                option.setAttribute('data-xp', food.xp_gain);
-                foodSelect.appendChild(option);
-            }
-        }
-    }
-
-    // Get pet emoji based on species or ID
-    function getPetEmoji(species) {
-        const speciesLower = species ? species.toLowerCase() : "";
-        
-        if (speciesLower.includes('dog')) return '🐕';
-        if (speciesLower.includes('cat')) return '🐈';
-        if (speciesLower.includes('ferret')) return '🐾';
-        if (speciesLower.includes('hamster')) return '🐹';
-        if (speciesLower.includes('parrot')) return '🦜';
-        if (speciesLower.includes('seal')) return '🌊';
-        
-        // Default based on common species
-        switch(speciesLower) {
-            case 'dog': return '🐕';
-            case 'cat': return '🐈';
-            case 'ferret': return '🐾';
-            case 'hamster': return '🐹';
-            case 'parrot': return '🦜';
-            case 'seal': return '🌊';
-            default: return '🐾';
-        }
-    }
-
-    // Open feed modal
-    function openFeedModal() {
-        if (!userPet) return;
-        
-        const emoji = getPetEmoji(userPet.species);
-        feedPetEmoji.textContent = emoji;
-        feedPetName.textContent = userPet.pet_name;
-        feedPetHunger.textContent = (userPet.hunger || 100) + "%";
-        feedPetHunger.className = userPet.hunger <= 10 ? "badge bg-danger" : "badge bg-warning";
-        
-        feedQuantity.value = "1";
-        hideError(feedError);
-        feedForm.reset();
-        
-        feedModal.show();
-    }
-
-    // Open feed modal with specific food pre-selected
-    function openFeedModalWithFood(foodId, foodName, hungerRestore, xpGain, quantity) {
-        openFeedModal();
-        
-        // Find and select the food item
-        for (let i = 0; i < foodSelect.options.length; i++) {
-            if (foodSelect.options[i].value == foodId) {
-                foodSelect.selectedIndex = i;
-                break;
-            }
-        }
-        
-        // Update feed info
-        feedInfoText.textContent = `Feeding ${foodName} will restore ${hungerRestore}% hunger and give ${xpGain} XP per item.`;
-        
-        // Set max quantity
-        feedQuantity.max = quantity;
-        if (parseInt(quantity) === 1) {
-            feedQuantity.disabled = true;
-        }
-    }
-
-    // Open level up modal
-    function openLevelModal() {
-        if (!userPet) return;
-        
-        const emoji = getPetEmoji(userPet.species);
-        levelPetEmoji.textContent = emoji;
-        levelPetName.textContent = userPet.pet_name;
-        
-        const currentLevel = userPet.level_id || 1;
-        const currentXP = userPet.experience || 0;
-        
-        levelCurrentLevel.textContent = `Level ${currentLevel}`;
-        
-        // Find current and next level requirements
-        const currentLevelData = availableLevels.find(l => l.level_id === currentLevel);
-        const nextLevelData = availableLevels.find(l => l.level_id === currentLevel + 1);
-        
-        if (nextLevelData) {
-            const xpRequired = nextLevelData.experience_required;
-            const xpProgress = Math.min(currentXP, xpRequired);
-            const progressPercentage = Math.min(Math.floor((xpProgress / xpRequired) * 100), 100);
+                editProfileModal.hide();
+                showSuccess("Profile updated successfully!");
+                loadAllUserData(); // Reload all data
+            };
             
-            levelCurrentXP.textContent = `${currentXP}/${xpRequired} XP`;
-            levelProgressBar.style.width = progressPercentage + "%";
-            levelProgressBar.textContent = progressPercentage + "%";
-            levelProgressBar.className = progressPercentage >= 100 ? "progress-bar bg-success" : "progress-bar";
-            
-            currentBonus.textContent = `${(currentLevel - 1) * 10}%`;
-            nextBonus.textContent = `${currentLevel * 10}%`;
-            
-            if (currentXP >= xpRequired) {
-                levelUpText.textContent = "Your pet can level up! Click the button below.";
-                levelUpInfo.className = "alert alert-success";
-                levelUpBtn.disabled = false;
-                levelUpBtn.textContent = `Level Up to ${nextLevelData.level_name}`;
-            } else {
-                const xpNeeded = xpRequired - currentXP;
-                levelUpText.textContent = `Your pet needs ${xpNeeded} more XP to reach level ${currentLevel + 1}.`;
-                levelUpInfo.className = "alert alert-warning";
-                levelUpBtn.disabled = true;
-                levelUpBtn.textContent = "Need More XP";
-            }
-        } else {
-            // Max level reached
-            levelCurrentXP.textContent = `${currentXP} XP (Max Level)`;
-            levelProgressBar.style.width = "100%";
-            levelProgressBar.textContent = "100%";
-            levelProgressBar.className = "progress-bar bg-success";
-            
-            currentBonus.textContent = `${(currentLevel - 1) * 10}%`;
-            nextBonus.textContent = "Max";
-            
-            levelUpText.textContent = "Your pet has reached the maximum level!";
-            levelUpInfo.className = "alert alert-info";
-            levelUpBtn.disabled = true;
-            levelUpBtn.textContent = "Maximum Level Reached";
-        }
-        
-        hideError(levelError);
-        levelModal.show();
-    }
-
-    // Edit username button
-    editUsernameBtn.addEventListener("click", function() {
-        usernameInput.readOnly = !usernameInput.readOnly;
-        if (!usernameInput.readOnly) {
-            usernameInput.focus();
-            editUsernameBtn.textContent = "Save";
-            editUsernameBtn.className = "btn btn-primary";
-        } else {
-            editUsernameBtn.textContent = "Edit";
-            editUsernameBtn.className = "btn btn-outline-primary";
-        }
-    });
-
-    // Profile form submission
-    profileForm.addEventListener("submit", function(e) {
-        e.preventDefault();
-        hideError(errorMsg);
-        
-        // Check if passwords match if provided
-        const newPass = newPasswordInput.value;
-        const confirmPass = confirmPasswordInput.value;
-        
-        if (newPass && newPass !== confirmPass) {
-            showError(errorMsg, "New passwords do not match");
-            return;
-        }
-        
-        if (newPass && !currentPasswordInput.value) {
-            showError(errorMsg, "Please enter current password to change password");
-            return;
-        }
-        
-        // Prepare data for update
-        const data = {
-            username: usernameInput.value
+            fetchMethod(
+                currentUrl + "/api/users/" + userId,
+                updateCallback,
+                "PUT",
+                updateData,
+                token
+            );
         };
         
-        // If password change is requested
-        if (newPass && currentPasswordInput.value) {
-            // Note: In a real app, you'd need to verify current password first
-            // This would require a separate API endpoint
-            showError(errorMsg, "Password change requires current password verification. Please use a dedicated password change feature.");
-            return;
-        }
-        
-        const callback = (status, responseData) => {
-            if (status !== 200) {
-                showError(errorMsg, responseData.message || "Failed to update profile");
-                return;
-            }
-            
-            showSuccess("Profile updated successfully!");
-            
-            // Reset password fields
-            currentPasswordInput.value = "";
-            newPasswordInput.value = "";
-            confirmPasswordInput.value = "";
-            
-            // Reload user data
-            loadUserData();
-        };
-        
+        // Verify password using login endpoint
         fetchMethod(
-            currentUrl + "/api/users/" + userId,
-            callback,
-            "PUT",
-            data,
-            token
-        );
-    });
-
-    // Feed pet button
-    feedPetBtn.addEventListener("click", openFeedModal);
-
-    // Level pet button
-    levelPetBtn.addEventListener("click", openLevelModal);
-
-    // Release pet button
-    releasePetBtn.addEventListener("click", function() {
-        if (!userPet) return;
-        
-        releasePetName.textContent = userPet.pet_name;
-        confirmReleaseModal.show();
-    });
-
-    // Feed form submission
-    feedForm.addEventListener("submit", function(e) {
-        e.preventDefault();
-        hideError(feedError);
-        
-        if (!userPet) {
-            showError(feedError, "You don't have a pet");
-            return;
-        }
-        
-        const foodId = foodSelect.value;
-        const quantity = parseInt(feedQuantity.value);
-        
-        if (!foodId) {
-            showError(feedError, "Please select a food item");
-            return;
-        }
-        
-        if (quantity < 1) {
-            showError(feedError, "Quantity must be at least 1");
-            return;
-        }
-        
-        const data = {
-            food_id: parseInt(foodId),
-            quantity: quantity
-        };
-        
-        const callback = (status, responseData) => {
-            if (status !== 200) {
-                showError(feedError, responseData.message || "Failed to feed pet");
-                return;
-            }
-            
-            feedModal.hide();
-            showSuccess(`Successfully fed ${userPet.pet_name}! ${responseData.message}`);
-            
-            // Reload pet and inventory
-            loadUserPet();
-            loadInventory();
-            loadUserData(); // Points might change
-        };
-        
-        fetchMethod(
-            currentUrl + "/api/inventory/pet/feed",
-            callback,
+            currentUrl + "/api/login",
+            verifyCallback,
             "POST",
-            data,
-            token
-        );
-    });
-
-    // Level up button
-    levelUpBtn.addEventListener("click", function() {
-        if (!userPet || levelUpBtn.disabled) return;
-        
-        const callback = (status, responseData) => {
-            if (status !== 200) {
-                showError(levelError, responseData.message || "Failed to level up pet");
-                return;
-            }
-            
-            levelModal.hide();
-            showSuccess(`Congratulations! ${userPet.pet_name} leveled up!`);
-            
-            // Reload pet data
-            loadUserPet();
-        };
-        
-        fetchMethod(
-            currentUrl + "/api/level/pet/levelup",
-            callback,
-            "POST",
-            { pet_id: userPet.pet_id },
-            token
-        );
-    });
-
-    // Confirm release pet
-    confirmReleaseBtn.addEventListener("click", function() {
-        const callback = (status, responseData) => {
-            if (status !== 204) {
-                showError(errorMsg, responseData.message || "Failed to release pet");
-                confirmReleaseModal.hide();
-                return;
-            }
-            
-            confirmReleaseModal.hide();
-            showSuccess("You have released your pet.");
-            
-            // Reload pet data
-            loadUserPet();
-        };
-        
-        fetchMethod(
-            currentUrl + "/api/pet",
-            callback,
-            "DELETE",
-            null,
-            token
+            loginData
         );
     });
 
@@ -688,14 +431,9 @@ document.addEventListener("DOMContentLoaded", function ()
                 return;
             }
             
-            confirmDeleteModal.hide();
-            showSuccess("Your account has been deleted.");
-            
-            // Clear local storage and redirect to home page
-            setTimeout(function() {
-                localStorage.removeItem("token");
-                window.location.href = "index.html";
-            }, 2000);
+            // Clear token and redirect to index.html
+            localStorage.removeItem("token");
+            window.location.href = "index.html";
         };
         
         fetchMethod(
@@ -707,32 +445,358 @@ document.addEventListener("DOMContentLoaded", function ()
         );
     });
 
-    // Food select change event
-    foodSelect.addEventListener("change", function() {
-        const selectedOption = foodSelect.options[foodSelect.selectedIndex];
-        if (selectedOption.value) {
-            const hungerRestore = selectedOption.getAttribute('data-hunger');
-            const xpGain = selectedOption.getAttribute('data-xp');
-            feedInfoText.textContent = `Feeding this will restore ${hungerRestore}% hunger and give ${xpGain} XP per item.`;
+    // Release pet button
+    releasePetBtn.addEventListener("click", function() {
+        if (!userPet) return;
+        
+        confirmReleaseModal.show();
+    });
+
+    // Confirm release pet
+    confirmReleaseBtn.addEventListener("click", function() {
+        const callback = (status, responseData) => {
+            if (status !== 204) {
+                showError(errorMsg, responseData.message || "Failed to release pet");
+                confirmReleaseModal.hide();
+                return;
+            }
+            
+            showSuccess("Pet released successfully");
+            confirmReleaseModal.hide();
+            loadAllUserData(); // Reload all data
+        };
+        
+        fetchMethod(
+            currentUrl + "/api/pet",
+            callback,
+            "DELETE",
+            null,
+            token
+        );
+    });
+
+    // Edit pet name button (add this button to your HTML)
+    if (editPetNameBtn) {
+        editPetNameBtn.addEventListener("click", function() {
+            if (!userPet) return;
+            
+            newPetName.value = userPet.pet_name || "";
+            hideError(editPetNameError);
+            editPetNameModal.show();
+        });
+    }
+
+    // Edit pet name form
+    if (editPetNameForm) {
+        editPetNameForm.addEventListener("submit", function(e) {
+            e.preventDefault();
+            hideError(editPetNameError);
+            
+            if (!newPetName.value.trim()) {
+                showError(editPetNameError, "Please enter a pet name");
+                return;
+            }
+            
+            if (!userPet || !userPet.userpet_id) {
+                showError(editPetNameError, "No pet found to update");
+                return;
+            }
+            
+            const data = {
+                pet_name: newPetName.value.trim()
+            };
+            
+            const callback = (status, responseData) => {
+                if (status !== 200) {
+                    showError(editPetNameError, responseData.message || "Failed to update pet name");
+                    return;
+                }
+                
+                editPetNameModal.hide();
+                showSuccess("Pet name updated successfully!");
+                loadAllUserData(); // Reload all data
+            };
+            
+            fetchMethod(
+                currentUrl + "/api/userpet/" + userPet.userpet_id,
+                callback,
+                "PUT",
+                data,
+                token
+            );
+        });
+    }
+
+    // Feed pet button
+    feedPetBtn.addEventListener("click", function() {
+        if (!userPet) {
+            showError(errorMsg, "You don't have a pet to feed");
+            return;
         }
+        
+        // Populate food dropdown from inventory
+        populateFoodDropdown();
+        
+        // Set current pet status
+        currentHunger.textContent = (userPet.hunger || 100) + "%";
+        currentExperience.textContent = (userPet.experience || 0) + " XP";
+        currentLevel.textContent = "Level " + (userPet.level_id || 1);
+        
+        hideError(feedPetError);
+        feedPetModal.show();
+    });
+
+    // Populate food dropdown from inventory
+    function populateFoodDropdown() {
+        foodSelect.innerHTML = '<option value="">Choose food from inventory...</option>';
+        
+        if (!inventoryData || inventoryData.length === 0) {
+            foodAvailable.textContent = "No food in inventory";
+            foodSelect.disabled = true;
+            return;
+        }
+        
+        foodSelect.disabled = false;
+        
+        for (let i = 0; i < inventoryData.length; i++) {
+            const item = inventoryData[i];
+            if (item.quantity > 0) {
+                const option = document.createElement("option");
+                option.value = item.food_id;
+                option.textContent = `${item.food_name} (${item.quantity} available)`;
+                option.setAttribute("data-hunger", item.hunger_restore);
+                option.setAttribute("data-xp", item.xp_gain);
+                foodSelect.appendChild(option);
+            }
+        }
+        
+        // Update available text
+        const hasFood = inventoryData.some(item => item.quantity > 0);
+        if (!hasFood) {
+            foodAvailable.textContent = "No food available in inventory";
+            foodSelect.disabled = true;
+        }
+    }
+
+    // Food selection changed
+    foodSelect.addEventListener("change", function() {
+        const foodId = this.value;
+        const selectedOption = this.options[this.selectedIndex];
+        
+        if (foodId && selectedOption) {
+            foodPreview.classList.remove("d-none");
+            
+            const selectedItem = inventoryData.find(item => item.food_id == foodId);
+            if (selectedItem) {
+                foodAvailable.textContent = `You have: ${selectedItem.quantity} available`;
+                
+                // Update max quantity
+                feedQuantity.max = selectedItem.quantity;
+                feedQuantity.value = Math.min(1, selectedItem.quantity);
+                
+                updateFoodPreview(selectedItem);
+            }
+        } else {
+            foodPreview.classList.add("d-none");
+        }
+    });
+
+    // Feed quantity changed
+    feedQuantity.addEventListener("input", function() {
+        const foodId = foodSelect.value;
+        const selectedItem = inventoryData.find(item => item.food_id == foodId);
+        
+        if (selectedItem) {
+            updateFoodPreview(selectedItem);
+        }
+    });
+
+    // Update food preview
+    function updateFoodPreview(item) {
+        const quantity = parseInt(feedQuantity.value) || 1;
+        const totalHunger = (item.hunger_restore || 0) * quantity;
+        const totalXP = (item.xp_gain || 0) * quantity;
+        
+        previewHunger.textContent = totalHunger;
+        previewXP.textContent = totalXP;
+        previewTotal.textContent = `${totalHunger} hunger, ${totalXP} XP`;
+    }
+
+    // Feed pet form
+    feedPetForm.addEventListener("submit", function(e) {
+        e.preventDefault();
+        hideError(feedPetError);
+        
+        if (!foodSelect.value) {
+            showError(feedPetError, "Please select a food item");
+            return;
+        }
+        
+        const quantity = parseInt(feedQuantity.value) || 1;
+        const selectedItem = inventoryData.find(item => item.food_id == foodSelect.value);
+        
+        if (!selectedItem) {
+            showError(feedPetError, "Selected food item not found");
+            return;
+        }
+        
+        if (selectedItem.quantity < quantity) {
+            showError(feedPetError, `Not enough food available. You have ${selectedItem.quantity}, trying to feed ${quantity}`);
+            return;
+        }
+        
+        if (quantity < 1) {
+            showError(feedPetError, "Quantity must be at least 1");
+            return;
+        }
+        
+        const data = {
+            food_id: parseInt(foodSelect.value),
+            quantity: quantity,
+            pet_id: userPet.pet_id // Add pet_id for the feed endpoint
+        };
+        
+        const callback = (status, responseData) => {
+            console.log("Feed response:", status, responseData);
+            if (status !== 200) {
+                showError(feedPetError, responseData.message || "Failed to feed pet");
+                return;
+            }
+            
+            feedPetModal.hide();
+            showSuccess(responseData.message || "Pet fed successfully!");
+            
+            // Reload all data
+            setTimeout(() => {
+                loadAllUserData();
+            }, 500);
+        };
+        
+        fetchMethod(
+            currentUrl + "/api/inventory/pet/feed",
+            callback,
+            "POST",
+            data,
+            token
+        );
+    });
+
+    // Level up pet button
+    levelUpPetBtn.addEventListener("click", function() {
+        if (!userPet) {
+            showError(errorMsg, "You don't have a pet to level up");
+            return;
+        }
+        
+        const emoji = getPetEmoji(userPet.species);
+        levelUpEmoji.textContent = emoji;
+        levelUpPetName.textContent = userPet.pet_name || "Your Pet";
+        currentLevelText.textContent = "Level " + (userPet.level_id || 1);
+        
+        // Check level up requirements
+        checkLevelUpRequirements();
+        
+        hideError(levelUpError);
+        levelUpModal.show();
+    });
+
+    // Check level up requirements
+    function checkLevelUpRequirements() {
+        const currentExp = userPet.experience || 0;
+        const currentLevelId = userPet.level_id || 1;
+        
+        currentExpValue.textContent = currentExp + " XP";
+        
+        // Find next level
+        const nextLevel = allLevels.find(level => level.level_id == (currentLevelId + 1));
+        
+        if (!nextLevel) {
+            requiredExpValue.textContent = "MAX";
+            expNeeded.textContent = "Max Level Reached";
+            confirmLevelUpBtn.disabled = true;
+            confirmLevelUpBtn.textContent = "Maximum Level Reached";
+            confirmLevelUpBtn.classList.remove("btn-primary");
+            confirmLevelUpBtn.classList.add("btn-secondary");
+            return;
+        }
+        
+        requiredExpValue.textContent = nextLevel.experience_required + " XP";
+        
+        const expNeededValue = Math.max(0, nextLevel.experience_required - currentExp);
+        expNeeded.textContent = expNeededValue + " XP";
+        
+        if (currentExp >= nextLevel.experience_required) {
+            confirmLevelUpBtn.disabled = false;
+            confirmLevelUpBtn.textContent = `⬆️ Level Up to ${nextLevel.level_name}`;
+            confirmLevelUpBtn.classList.remove("btn-secondary");
+            confirmLevelUpBtn.classList.add("btn-primary");
+        } else {
+            confirmLevelUpBtn.disabled = true;
+            confirmLevelUpBtn.textContent = `Need ${expNeededValue} more XP`;
+            confirmLevelUpBtn.classList.remove("btn-primary");
+            confirmLevelUpBtn.classList.add("btn-secondary");
+        }
+    }
+
+    // Confirm level up
+    confirmLevelUpBtn.addEventListener("click", function() {
+        if (!userPet) return;
+        
+        const data = {
+            pet_id: userPet.pet_id
+        };
+        
+        const callback = (status, responseData) => {
+            console.log("Level up response:", status, responseData);
+            if (status !== 200) {
+                showError(levelUpError, responseData.message || "Failed to level up pet");
+                return;
+            }
+            
+            levelUpModal.hide();
+            showSuccess(responseData.message || "Pet leveled up successfully!");
+            setTimeout(() => {
+                loadAllUserData(); // Reload all data
+            }, 500);
+        };
+        
+        fetchMethod(
+            currentUrl + "/api/level/pet/levelup",
+            callback,
+            "POST",
+            data,
+            token
+        );
     });
 
     // Helper functions
     function showError(element, message) {
-        element.textContent = message;
-        element.classList.remove("d-none");
+        if (element) {
+            element.textContent = message;
+            element.classList.remove("d-none");
+            console.error("Error:", message);
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                hideError(element);
+            }, 5000);
+        }
     }
     
     function hideError(element) {
-        element.textContent = "";
-        element.classList.add("d-none");
+        if (element) {
+            element.textContent = "";
+            element.classList.add("d-none");
+        }
     }
     
     function showSuccess(message) {
-        successMsg.textContent = message;
-        successMsg.classList.remove("d-none");
-        setTimeout(function() {
-            successMsg.classList.add("d-none");
-        }, 3000);
+        if (successMsg) {
+            successMsg.textContent = message;
+            successMsg.classList.remove("d-none");
+            setTimeout(function() {
+                successMsg.classList.add("d-none");
+            }, 3000);
+        }
     }
 });

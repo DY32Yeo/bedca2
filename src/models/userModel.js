@@ -176,3 +176,15 @@ module.exports.deleteById = (data, callback) =>
 
     pool.query(SQLSTATMENT, VALUES, callback);
 }
+
+module.exports.selectProfileById = (data, callback) =>
+{
+    const SQLSTATMENT = `
+    SELECT user_id, username, email, points, created_on
+    FROM User
+    WHERE user_id = ?;
+    `;
+    const VALUES = [data.user_id];
+
+    pool.query(SQLSTATMENT, VALUES, callback);
+}

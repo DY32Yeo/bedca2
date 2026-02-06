@@ -19,7 +19,7 @@
 
   <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark py-4">
+    <nav class="navbar navbar-expand-lg navbar-dark">
       <div class="container-fluid px-5">
         <a class="navbar-brand d-flex align-items-center ms-5" href="index.html">
           <!-- <div class="brand-badge"> -->
@@ -84,295 +84,321 @@
 
     <main class="py-4">
       <div class="container">
-        <!-- Login Required Section -->
-        <div id="loginRequired" class="d-none">
-          <div class="row justify-content-center">
-            <div class="col-md-6">
-              <div class="card text-center py-5">
-                <div class="card-body">
-                  <div class="display-1 mb-4">🔒</div>
-                  <h2 class="fw-bold mb-3">Login Required</h2>
-                  <p class="text-muted mb-4">Please login to view your profile</p>
-                  <a href="login.html" class="btn btn-primary btn-lg me-2">Login</a>
-                  <a href="register.html" class="btn btn-outline-primary btn-lg">Register</a>
+        <h1 class="fw-bold mb-4 fs-1">My Profile</h1>
+
+        <!-- Error and Success Messages -->
+        <div id="errorMsg" class="alert alert-danger d-none mb-4"></div>
+        <div id="successMsg" class="alert alert-success d-none mb-4"></div>
+
+        <!-- User Info Card -->
+        <div class="row mb-5">
+          <div class="col-md-8">
+            <div class="card h-100">
+              <div class="card-header bg-primary text-white">
+                <h4 class="mb-0 fw-bold">Account Information</h4>
+              </div>
+              <div class="card-body">
+                <div class="row mb-4">
+                  <div class="col-md-6">
+                    <h6 class="text-muted">Username</h6>
+                    <h4 id="username" class="fw-bold">Loading...</h4>
+                  </div>
+                  <div class="col-md-6">
+                    <h6 class="text-muted">Email</h6>
+                    <h4 id="email" class="fw-bold">Loading...</h4>
+                  </div>
+                </div>
+                
+                <div class="row mb-4">
+                  <div class="col-md-6">
+                    <h6 class="text-muted">Member Since</h6>
+                    <h5 id="createdOn" class="fw-bold">Loading...</h5>
+                  </div>
+                  <div class="col-md-6">
+                    <h6 class="text-muted">Current Points</h6>
+                    <h5 class="fw-bold">
+                      <span id="points" class="badge bg-success fs-4">0</span> points
+                    </h5>
+                  </div>
+                </div>
+                
+                <div class="row">
+                  <div class="col-md-6">
+                    <h6 class="text-muted">Challenges Completed</h6>
+                    <h5 class="fw-bold">
+                      <span id="completedChallenges" class="badge bg-info fs-4">0</span>
+                    </h5>
+                  </div>
+                  <div class="col-md-6">
+                    <h6 class="text-muted">Total Points Earned</h6>
+                    <h5 class="fw-bold">
+                      <span id="totalPoints" class="badge bg-warning fs-4">0</span> points
+                    </h5>
+                  </div>
+                </div>
+                
+                <div class="mt-4 pt-3 border-top">
+                  <button id="editProfileBtn" class="btn btn-warning me-3">
+                    ✏️ Edit Profile
+                  </button>
+                  <button id="deleteAccountBtn" class="btn btn-outline-danger">
+                    🗑️ Delete Account
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-4">
+            <div class="card h-100 text-center">
+              <div class="card-body d-flex flex-column">
+                <div class="display-1 text-primary mb-3">🏆</div>
+                <h5 class="card-title fw-bold">Ranking</h5>
+                <p class="card-text">Your position among other pet guardians</p>
+                <div class="mt-3">
+                  <span class="badge bg-primary fs-1" id="ranking">-</span>
+                  <p class="text-muted mb-0">Leaderboard Position</p>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Profile Content (Shown when logged in) -->
-        <div id="profileContent" class="d-none">
-          <!-- Header Section -->
-          <section class="mb-5">
-            <div class="d-flex justify-content-between align-items-center mb-4">
+        <!-- Pet Card (if has pet) -->
+        <div id="petSection" class="d-none mb-5">
+          <h2 class="mb-4">My Pet</h2>
+          <div class="card">
+            <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+              <h4 class="mb-0 fw-bold" id="petHeader">Pet Name</h4>
               <div>
-                <h1 class="fw-bold mb-2 fs-1">My Profile</h1>
-                <p class="text-muted">Manage your account, pet, and inventory</p>
-              </div>
-              <div class="text-end">
-                <p class="h4 mb-2">Member since: <span id="memberSince">Loading...</span></p>
-                <p class="h5 text-muted">User ID: <span id="userId">#0000</span></p>
-              </div>
-            </div>
-
-            <div id="errorMsg" class="alert alert-danger d-none"></div>
-            <div id="successMsg" class="alert alert-success d-none"></div>
-          </section>
-
-          <!-- Stats Section -->
-          <section class="mb-5">
-            <h2 class="mb-4">Your Statistics</h2>
-            <div class="row g-4">
-              <div class="col-md-3">
-                <div class="card h-100 text-center stat-card">
-                  <div class="card-body">
-                    <div class="display-4 text-primary mb-3">💰</div>
-                    <h3 class="card-title fw-bold" id="totalPoints">0</h3>
-                    <p class="card-text text-muted">Total Points</p>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-3">
-                <div class="card h-100 text-center stat-card">
-                  <div class="card-body">
-                    <div class="display-4 text-primary mb-3">🎯</div>
-                    <h3 class="card-title fw-bold" id="completedChallenges">0</h3>
-                    <p class="card-text text-muted">Challenges Completed</p>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-3">
-                <div class="card h-100 text-center stat-card">
-                  <div class="card-body">
-                    <div class="display-4 text-primary mb-3">🏆</div>
-                    <h3 class="card-title fw-bold" id="totalPointsEarned">0</h3>
-                    <p class="card-text text-muted">Total Points Earned</p>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-3">
-                <div class="card h-100 text-center stat-card">
-                  <div class="card-body">
-                    <div class="display-4 text-primary mb-3">📊</div>
-                    <h3 class="card-title fw-bold" id="leaderboardRank">-</h3>
-                    <p class="card-text text-muted">Leaderboard Rank</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <!-- User Info & Pet Section -->
-          <section class="mb-5">
-            <div class="row">
-              <!-- User Info Column -->
-              <div class="col-lg-6 mb-4">
-                <div class="card h-100">
-                  <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0 fw-bold">📝 Account Information</h4>
-                  </div>
-                  <div class="card-body">
-                    <form id="profileForm">
-                      <div class="mb-4">
-                        <label class="form-label fw-bold">Username</label>
-                        <div class="input-group">
-                          <input type="text" class="form-control" id="username" required>
-                          <button type="button" id="editUsernameBtn" class="btn btn-outline-primary">Edit</button>
-                        </div>
-                        <div class="form-text">Your display name on Pet Guardian</div>
-                      </div>
-
-                      <div class="mb-4">
-                        <label class="form-label fw-bold">Email</label>
-                        <input type="email" class="form-control" id="email" readonly>
-                        <div class="form-text">Email cannot be changed</div>
-                      </div>
-
-                      <div class="mb-4">
-                        <label class="form-label fw-bold">Change Password</label>
-                        <div class="input-group mb-2">
-                          <input type="password" class="form-control" id="currentPassword" placeholder="Current Password">
-                        </div>
-                        <div class="input-group mb-2">
-                          <input type="password" class="form-control" id="newPassword" placeholder="New Password">
-                        </div>
-                        <div class="input-group">
-                          <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm New Password">
-                        </div>
-                        <div class="form-text">Leave blank if you don't want to change password</div>
-                      </div>
-
-                      <button type="submit" class="btn btn-primary w-100 py-2">Save Changes</button>
-                    </form>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Pet Column -->
-              <div class="col-lg-6 mb-4">
-                <div class="card h-100">
-                  <div class="card-header bg-success text-white">
-                    <h4 class="mb-0 fw-bold">🐾 Your Pet Companion</h4>
-                  </div>
-                  <div class="card-body" id="petSection">
-                    <!-- Pet Card (shown when user has pet) -->
-                    <div id="petCard" class="d-none">
-                      <div class="pet-card bg-light p-4 rounded mb-4">
-                        <div class="row align-items-center">
-                          <div class="col-md-4 text-center">
-                            <div class="display-1" id="petEmoji">🐕</div>
-                          </div>
-                          <div class="col-md-8">
-                            <h3 id="petName" class="fw-bold mb-2">Pet Name</h3>
-                            <div class="mb-3">
-                              <span class="badge bg-primary me-2" id="petLevel">Level 1</span>
-                              <span class="badge bg-success me-2" id="petExperience">0 XP</span>
-                              <span class="badge bg-warning" id="petHunger">100%</span>
-                            </div>
-                            <p class="mb-2">Species: <span id="petSpecies" class="fw-bold">Dog</span></p>
-                            <p class="mb-0">Adopted: <span id="petAdoptedDate">Just now</span></p>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div class="row g-2 mb-4">
-                        <div class="col-6">
-                          <button id="feedPetBtn" class="btn btn-warning w-100 py-2">
-                            🍖 Feed Pet
-                          </button>
-                        </div>
-                        <div class="col-6">
-                          <button id="levelPetBtn" class="btn btn-info w-100 py-2">
-                            ⬆️ Level Up
-                          </button>
-                        </div>
-                      </div>
-
-                      <div class="alert alert-warning">
-                        <h6 class="alert-heading fw-bold">⚠️ Pet Warning</h6>
-                        <p class="mb-0">Your pet's hunger affects challenge completion. Keep it fed!</p>
-                      </div>
-
-                      <button id="releasePetBtn" class="btn btn-outline-danger w-100 py-2 mt-3">
-                        🚫 Release Pet
-                      </button>
-                    </div>
-
-                    <!-- No Pet Message (shown when user has no pet) -->
-                    <div id="noPetMessage" class="text-center py-5">
-                      <div class="display-1 mb-3">🐾</div>
-                      <h4 class="fw-bold mb-3">No Pet Companion</h4>
-                      <p class="text-muted mb-4">You don't have a pet yet. Adopt one to earn bonus points!</p>
-                      <a href="pets.html" class="btn btn-primary btn-lg">Browse Pets</a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <!-- Inventory Section -->
-          <section class="mb-5">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-              <h2 class="mb-0">📦 Your Inventory</h2>
-              <a href="food.html" class="btn btn-outline-primary">Visit Store</a>
-            </div>
-            
-            <div class="card">
-              <div class="card-body">
-                <div id="inventoryContainer" class="row g-3">
-                  <!-- Inventory items will be loaded here -->
-                  <div class="col-12 text-center py-5">
-                    <div class="spinner-border text-primary" role="status">
-                      <span class="visually-hidden">Loading inventory...</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div id="emptyInventory" class="text-center py-5 d-none">
-                  <div class="display-1 mb-3">📦</div>
-                  <h4 class="fw-bold mb-3">Inventory Empty</h4>
-                  <p class="text-muted mb-4">You don't have any food items yet.</p>
-                  <a href="food.html" class="btn btn-primary btn-lg">Buy Food</a>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <!-- Danger Zone -->
-          <section class="mb-5">
-            <div class="card border-danger danger-zone">
-              <div class="card-header bg-danger text-white">
-                <h4 class="mb-0 fw-bold">⚠️ Danger Zone</h4>
-              </div>
-              <div class="card-body">
-                <h5 class="fw-bold mb-3">Delete Account</h5>
-                <p class="text-muted mb-4">
-                  This will permanently delete your account, remove all your data, 
-                  challenges, pets, and inventory. This action cannot be undone.
-                </p>
-                <button id="deleteAccountBtn" class="btn btn-danger">
-                  Delete My Account
+                <button id="editPetNameBtn" class="btn btn-outline-light btn-sm me-2 d-none">
+                  ✏️ Edit Name
+                </button>
+                <button id="releasePetBtn" class="btn btn-outline-light btn-sm">
+                  🚫 Release Pet
                 </button>
               </div>
             </div>
-          </section>
+            <div class="card-body">
+              <div class="row align-items-center">
+                <div class="col-md-2 text-center">
+                  <div class="display-1" id="petEmoji">🐾</div>
+                </div>
+                <div class="col-md-10">
+                  <div class="row">
+                    <div class="col-md-4">
+                      <h6 class="text-muted">Pet Name</h6>
+                      <h4 id="petName" class="fw-bold">Loading...</h4>
+                    </div>
+                    <div class="col-md-4">
+                      <h6 class="text-muted">Species</h6>
+                      <h4 id="petSpecies" class="fw-bold">Loading...</h4>
+                    </div>
+                    <div class="col-md-4">
+                      <h6 class="text-muted">Adopted On</h6>
+                      <h5 id="petAdoptedOn" class="fw-bold">Loading...</h5>
+                    </div>
+                  </div>
+                  
+                  <div class="row mt-4">
+                    <div class="col-md-3">
+                      <h6 class="text-muted">Level</h6>
+                      <span id="petLevel" class="badge bg-primary fs-5">Level 1</span>
+                    </div>
+                    <div class="col-md-3">
+                      <h6 class="text-muted">Experience</h6>
+                      <span id="petExperience" class="badge bg-success fs-5">0 XP</span>
+                    </div>
+                    <div class="col-md-3">
+                      <h6 class="text-muted">Hunger</h6>
+                      <div class="d-flex align-items-center">
+                        <div class="progress flex-grow-1 me-2" style="height: 20px;">
+                          <div id="petHungerBar" class="progress-bar bg-warning" style="width: 100%;">100%</div>
+                        </div>
+                        <span id="petHunger" class="badge">100%</span>
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <h6 class="text-muted">Bonus</h6>
+                      <span id="petBonus" class="badge bg-info fs-5">10%</span>
+                    </div>
+                  </div>
+                  
+                  <div class="mt-4 pt-3 border-top">
+                    <button id="feedPetBtn" class="btn btn-success me-3">
+                      🍖 Feed Pet
+                    </button>
+                    <button id="levelUpPetBtn" class="btn btn-primary">
+                      ⬆️ Level Up Pet
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- No Pet Message -->
+        <div id="noPetSection" class="d-none mb-5">
+          <div class="card text-center">
+            <div class="card-body py-5">
+              <div class="display-1 text-muted mb-3">🐾</div>
+              <h3 class="card-title fw-bold">No Pet Yet</h3>
+              <p class="card-text text-muted mb-4">You haven't adopted a pet yet. Adopt one to start your wellness journey together!</p>
+              <a href="pets.html" class="btn btn-primary btn-lg">
+                🏠 Adopt a Pet
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Inventory Card -->
+        <div class="mb-5">
+          <h2 class="mb-4">My Inventory</h2>
+          <div class="card">
+            <div class="card-header bg-secondary text-white">
+              <h4 class="mb-0 fw-bold">Food Items</h4>
+            </div>
+            <div class="card-body">
+              <div id="inventoryEmpty" class="text-center py-5 d-none">
+                <div class="display-1 text-muted mb-3">🛒</div>
+                <h4 class="card-title fw-bold">Inventory Empty</h4>
+                <p class="card-text text-muted mb-4">You don't have any food items. Visit the store to buy food for your pet!</p>
+                <a href="food.html" class="btn btn-primary">
+                  🛍️ Visit Store
+                </a>
+              </div>
+              
+              <div id="inventoryItems" class="row g-3">
+                <!-- Inventory items will be loaded here -->
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </main>
 
-    <!-- Feed Pet Modal -->
-    <div class="modal fade" id="feedModal">
+    <!-- =============== MODALS =============== -->
+
+    <!-- Edit Profile Modal -->
+    <div class="modal fade" id="editProfileModal">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title fw-bold">🍖 Feed Your Pet</h5>
+            <h5 class="modal-title fw-bold">Edit Profile</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
-            <div id="feedError" class="alert alert-danger d-none mb-3"></div>
+            <div id="editProfileError" class="alert alert-danger d-none mb-3"></div>
+            <form id="editProfileForm">
+              <div class="mb-3">
+                <label class="form-label fw-bold">Username</label>
+                <input type="text" class="form-control" id="editUsername" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold">New Password (leave blank to keep current)</label>
+                <input type="password" class="form-control" id="newPassword">
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Confirm New Password</label>
+                <input type="password" class="form-control" id="confirmPassword">
+              </div>
+              <div class="mb-4">
+                <label class="form-label fw-bold">Current Password (required)</label>
+                <input type="password" class="form-control" id="currentPassword" required>
+              </div>
+              <button type="submit" class="btn btn-primary w-100">Save Changes</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Pet Name Modal -->
+    <div class="modal fade" id="editPetNameModal">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold">Edit Pet Name</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div id="editPetNameError" class="alert alert-danger d-none mb-3"></div>
+            <form id="editPetNameForm">
+              <div class="mb-4">
+                <label class="form-label fw-bold">New Pet Name</label>
+                <input type="text" class="form-control" id="newPetName" required>
+              </div>
+              <button type="submit" class="btn btn-primary w-100">Save Pet Name</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feed Pet Modal -->
+    <div class="modal fade" id="feedPetModal">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold">Feed Your Pet</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div id="feedPetError" class="alert alert-danger d-none mb-3"></div>
             
             <div class="card mb-4">
               <div class="card-body">
-                <div class="row align-items-center">
-                  <div class="col-3 text-center">
-                    <div class="display-4" id="feedPetEmoji">🐕</div>
+                <h6 class="card-subtitle mb-2 text-muted">Current Status</h6>
+                <div class="row">
+                  <div class="col-4">
+                    <small>Hunger:</small>
+                    <div id="currentHunger" class="fw-bold">100%</div>
                   </div>
-                  <div class="col-9">
-                    <h6 class="card-subtitle mb-1 text-muted">Current Status</h6>
-                    <p class="card-text mb-1">
-                      <span class="fw-bold" id="feedPetName">Pet Name</span> • 
-                      <span class="badge bg-warning" id="feedPetHunger">100%</span>
-                    </p>
-                    <small class="text-muted">Hunger must be above 10% to complete challenges</small>
+                  <div class="col-4">
+                    <small>Experience:</small>
+                    <div id="currentExperience" class="fw-bold">0 XP</div>
+                  </div>
+                  <div class="col-4">
+                    <small>Level:</small>
+                    <div id="currentLevel" class="fw-bold">Level 1</div>
                   </div>
                 </div>
               </div>
             </div>
             
-            <form id="feedForm">
-              <div class="mb-4">
-                <label class="form-label fw-bold">Select Food to Feed</label>
+            <form id="feedPetForm">
+              <div class="mb-3">
+                <label class="form-label fw-bold">Select Food</label>
                 <select class="form-select" id="foodSelect" required>
                   <option value="">Choose food from inventory...</option>
-                  <!-- Food options will be populated here -->
                 </select>
-                <div class="form-text">Select food from your inventory to feed your pet</div>
+                <div class="form-text" id="foodAvailable"></div>
+              </div>
+              
+              <div id="foodPreview" class="card mb-3 d-none">
+                <div class="card-body">
+                  <h6 class="card-subtitle mb-2 text-muted">Preview</h6>
+                  <div class="row">
+                    <div class="col-6">
+                      <small>Hunger Restore:</small>
+                      <div id="previewHunger" class="fw-bold">0</div>
+                    </div>
+                    <div class="col-6">
+                      <small>XP Gain:</small>
+                      <div id="previewXP" class="fw-bold">0</div>
+                    </div>
+                  </div>
+                </div>
               </div>
               
               <div class="mb-4">
                 <label class="form-label fw-bold">Quantity</label>
                 <input type="number" class="form-control" id="feedQuantity" min="1" value="1" required>
-                <div class="form-text">How many of this item to feed</div>
+                <div class="form-text" id="previewTotal"></div>
               </div>
               
-              <div class="alert alert-info">
-                <h6 class="alert-heading fw-bold">ℹ️ Feeding Info</h6>
-                <p class="mb-0 small" id="feedInfoText">Food restores hunger and gives XP to your pet</p>
-              </div>
-              
-              <button type="submit" class="btn btn-success w-100 py-2">Feed Pet</button>
+              <button type="submit" class="btn btn-success w-100">Feed Pet</button>
             </form>
           </div>
         </div>
@@ -380,74 +406,44 @@
     </div>
 
     <!-- Level Up Pet Modal -->
-    <div class="modal fade" id="levelModal">
+    <div class="modal fade" id="levelUpModal">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title fw-bold">⬆️ Level Up Your Pet</h5>
+            <h5 class="modal-title fw-bold">Level Up Pet</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
-            <div id="levelError" class="alert alert-danger d-none mb-3"></div>
+            <div id="levelUpError" class="alert alert-danger d-none mb-3"></div>
+            
+            <div class="text-center mb-4">
+              <div id="levelUpEmoji" class="display-1 mb-3">🐾</div>
+              <h4 id="levelUpPetName" class="fw-bold">Your Pet</h4>
+              <p class="text-muted" id="currentLevelText">Level 1</p>
+            </div>
             
             <div class="card mb-4">
-              <div class="card-body text-center">
-                <div class="display-1 mb-3" id="levelPetEmoji">🐕</div>
-                <h4 id="levelPetName" class="fw-bold mb-2">Pet Name</h4>
-                <div class="mb-3">
-                  <span class="badge bg-primary me-2" id="levelCurrentLevel">Level 1</span>
-                  <span class="badge bg-success" id="levelCurrentXP">0/100 XP</span>
-                </div>
-                
-                <div class="progress mb-3" style="height: 20px;">
-                  <div id="levelProgressBar" class="progress-bar" role="progressbar" style="width: 0%;">0%</div>
-                </div>
-                
-                <div class="row">
+              <div class="card-body">
+                <h6 class="card-subtitle mb-2 text-muted">Level Up Requirements</h6>
+                <div class="row mb-3">
                   <div class="col-6">
-                    <p class="mb-1 text-muted">Current Bonus</p>
-                    <h5 id="currentBonus">0%</h5>
+                    <small>Current Experience:</small>
+                    <div id="currentExpValue" class="fw-bold">0 XP</div>
                   </div>
                   <div class="col-6">
-                    <p class="mb-1 text-muted">Next Level Bonus</p>
-                    <h5 id="nextBonus">10%</h5>
+                    <small>Required for Next Level:</small>
+                    <div id="requiredExpValue" class="fw-bold">100 XP</div>
                   </div>
+                </div>
+                <div class="alert alert-info py-2">
+                  <small>Experience needed: <span id="expNeeded" class="fw-bold">100 XP</span></small>
                 </div>
               </div>
             </div>
             
-            <div class="alert alert-warning" id="levelUpInfo">
-              <h6 class="alert-heading fw-bold">ℹ️ Level Up Info</h6>
-              <p class="mb-0" id="levelUpText">Your pet needs more experience to level up</p>
-            </div>
-            
-            <button type="button" id="levelUpBtn" class="btn btn-info w-100 py-2" disabled>
-              Level Up
+            <button id="confirmLevelUpBtn" class="btn btn-primary w-100" disabled>
+              Need 100 more XP
             </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Confirm Release Pet Modal -->
-    <div class="modal fade" id="confirmReleaseModal">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title fw-bold text-danger">⚠️ Release Pet</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body text-center">
-            <div class="display-1 mb-3">😢</div>
-            <h4 class="fw-bold mb-3">Are you sure?</h4>
-            <p class="text-muted mb-4">
-              You are about to release <span id="releasePetName" class="fw-bold">your pet</span>. 
-              This action cannot be undone. You will not get your adoption points back.
-            </p>
-            <div class="d-grid gap-2">
-              <button id="confirmReleaseBtn" class="btn btn-danger py-2">Yes, Release Pet</button>
-              <button type="button" class="btn btn-outline-secondary py-2" data-bs-dismiss="modal">Cancel</button>
-            </div>
           </div>
         </div>
       </div>
@@ -461,25 +457,38 @@
             <h5 class="modal-title fw-bold text-danger">⚠️ Delete Account</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
-          <div class="modal-body text-center">
-            <div class="display-1 mb-3">💔</div>
-            <h4 class="fw-bold mb-3">Permanent Account Deletion</h4>
-            <div class="alert alert-danger mb-4">
-              <h6 class="alert-heading fw-bold">This will delete:</h6>
-              <ul class="mb-0 text-start">
-                <li>Your account and all personal data</li>
-                <li>All challenges you created</li>
-                <li>Your pet companion</li>
-                <li>Your inventory and points</li>
-                <li>All challenge completion history</li>
-              </ul>
+          <div class="modal-body">
+            <div class="text-center mb-4">
+              <div class="display-1 text-danger mb-3">🗑️</div>
+              <h4 class="fw-bold">Are you sure?</h4>
+              <p class="text-muted">This will permanently delete your account and all associated data. This action cannot be undone.</p>
             </div>
-            <p class="text-muted mb-4">
-              <strong>This action cannot be undone.</strong> Are you absolutely sure?
-            </p>
             <div class="d-grid gap-2">
-              <button id="confirmDeleteBtn" class="btn btn-danger py-2">Yes, Delete My Account</button>
-              <button type="button" class="btn btn-outline-secondary py-2" data-bs-dismiss="modal">Cancel</button>
+              <button id="confirmDeleteBtn" class="btn btn-danger">Yes, Delete My Account</button>
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Confirm Release Pet Modal -->
+    <div class="modal fade" id="confirmReleaseModal">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold text-warning">⚠️ Release Pet</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="text-center mb-4">
+              <div class="display-1 text-warning mb-3">🚫</div>
+              <h4 class="fw-bold">Release Your Pet?</h4>
+              <p class="text-muted">This will release your pet back to the shelter. You will need to adopt a new pet to continue.</p>
+            </div>
+            <div class="d-grid gap-2">
+              <button id="confirmReleaseBtn" class="btn btn-warning">Yes, Release My Pet</button>
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
             </div>
           </div>
         </div>

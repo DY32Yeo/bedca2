@@ -1,4 +1,7 @@
 const userModel = require("../models/userModel.js");
+const completionModel = require("../models/completionModel.js");
+const userpetModel = require("../models/userpetModel.js");
+const inventoryModel = require("../models/inventoryModel.js");
 
 module.exports.checkAllUser = (req, res, next) =>
 {   
@@ -342,4 +345,67 @@ module.exports.deleteUserById = (req, res, next) =>
     }
 
     userModel.deleteById(data, callback);
+}
+
+module.exports.getUserInfo = (req, res, next) =>
+{
+    const data = {
+        user_id: res.locals.userId
+    };
+
+    // 1) User basic info
+    userModel.selectProfileById(data, (error, userResults) =>
+    {
+        if (error)
+        {
+            console.error("Error selectProfileById:", error);
+            return res.status(500).json(error);
+        }
+
+        if (userResults.length == 0)
+        {
+            return res.status(404).json({ message: "user_id does not exist" });
+        }
+
+        const user = userResults[0];
+
+        // 2) Completion count
+        completionModel.countTotalByUserId(data, (error, completionResults) =>
+        {
+            if (error)
+            {
+                console.error("Error countTotalByUserId:", error);
+                return res.status(500).json(error);
+            }
+
+            const completion_count = completionResults[0].completion_count;
+
+            // 3) Pet details
+            userpetModel.selectUserPetDetailsByUserId(data, (error, petResults) =>
+            {
+                if (error)
+                {
+                    console.error("Error selectUserPetDetailsByUserId:", error);
+                    return res.status(500).json(error);
+                }
+
+                // 4) Inventory
+                inventoryModel.selectValidUserInventory(data, (error, inventoryResults) =>
+                {
+                    if (error)
+                    {
+                        console.error("Error selectValidUserInventory:", error);
+                        return res.status(500).json(error);
+                    }
+
+                    return res.status(200).json({
+                        user: user,
+                        completion_count: completion_count,
+                        pet: petResults,        
+                        inventory: inventoryResults
+                    });
+                });
+            });
+        });
+    });
 }

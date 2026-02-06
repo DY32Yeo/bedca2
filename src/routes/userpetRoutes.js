@@ -7,11 +7,11 @@ const userpetController = require('../controllers/userpetController');
 const jwtMiddleware = require('../middlewares/jwtMiddleware');
 
 
-// 3. get user's pets
-router.get('/:user_id', 
-    jwtMiddleware.verifyToken, 
-    userpetController.getUserPetById
-);
+// // 3. get user's pets
+// router.get('/:user_id', 
+//     jwtMiddleware.verifyToken, 
+//     userpetController.getUserPetById
+// );
 
 // 5. user can change their petname 
 router.put('/:userpet_id', 

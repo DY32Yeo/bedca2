@@ -80,13 +80,26 @@ module.exports.updateLevelById = (data, callback) =>
     pool.query(SQLSTATMENT, VALUES, callback);
 }
 
-// module.exports.checkByPetId = (data, callback) =>
-// {
-//     const SQLSTATMENT = `
-//     SELECT * FROM UserPet
-//     WHERE user_id = ? AND pet_id = ?;
-//     `;
-//     const VALUES = [data.user_id, data.pet_id];
+module.exports.selectUserPetDetailsByUserId = (data, callback) =>
+{
+    const SQLSTATMENT = `
+    SELECT 
+        UserPet.userpet_id,
+        UserPet.user_id,
+        UserPet.pet_id,
+        UserPet.pet_name,
+        Pet.species,
+        UserPet.level_id,
+        Level.level_name,
+        UserPet.experience,
+        UserPet.hunger,
+        UserPet.adopted_on
+    FROM UserPet, Pet, Level
+    WHERE UserPet.pet_id = Pet.pet_id
+    AND UserPet.level_id = Level.level_id
+    AND UserPet.user_id = ?;
+    `;
+    const VALUES = [data.user_id];
 
-//     pool.query(SQLSTATMENT, VALUES, callback);
-// }
+    pool.query(SQLSTATMENT, VALUES, callback);
+}

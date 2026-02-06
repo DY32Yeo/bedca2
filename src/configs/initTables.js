@@ -99,7 +99,7 @@ UNIQUE KEY unique_user_food (user_id, food_id)
 );
 
 INSERT INTO User (username, email, password, points) VALUES
-('Captain Rex', 'rex@gmail.com', '${hash}', 120),
+('Captain Rex', 'rex@gmail.com', '${hash}', 1200),
 ('Commander Cody', 'cody@gmail.com', '${hash}', 50),
 ('Obi-Wan Kenobi', 'obi@gmail.com', '${hash}', 100),
 ('Anakin Skywalker', 'ani@gmail.com', '${hash}', 150),
@@ -139,11 +139,9 @@ INSERT INTO Pet (species, adopt_cost) VALUES
 ('Hamster', 100),
 ('Parrot', 150),
 ('Seal', 200),
-('Alpaca', 250)
-;
+('Alpaca', 250);
 
 INSERT INTO UserPet (user_id, pet_id, pet_name) VALUES 
-(1, 1, 'Rex'),
 (2, 2, 'Cody'),
 (3, 1, 'Kenobi'),
 (4, 3, 'Darth Vader'),
@@ -168,8 +166,6 @@ INSERT INTO Food (food_name, cost, hunger_restore, xp_gain) VALUES
 ('Super Special Treat', 150, 100, 100);
 
 INSERT INTO Inventory (user_id, food_id, quantity) VALUES
-(1, 1, 3),
-(1, 2, 2),
 (2, 1, 1),
 (3, 3, 2),
 (4, 1, 5);

@@ -123,13 +123,13 @@ document.addEventListener("DOMContentLoaded", function () {
                                 `<button class="btn btn-outline-primary w-100" disabled>
                                     Login to Adopt
                                 </button>` :
-                                userPet ? 
+                                userPet ? // FIX: Check if user has ANY pet, not just this specific pet
                                 `<button class="btn btn-secondary w-100" disabled>
                                     Already Have Pet
                                 </button>` :
                                 !canAfford ?
                                 `<button class="btn btn-secondary w-100" disabled>
-                                    Need ${pet.adopt_cost} points
+                                    Need ${pet.adopt_cost} points (you have ${userPoints})
                                 </button>` :
                                 `<button class="btn btn-primary w-100 adopt-pet" 
                                     data-id="${pet.pet_id}" 
@@ -144,8 +144,8 @@ document.addEventListener("DOMContentLoaded", function () {
             `;
             
             petsContainer.appendChild(col);
-        });
-        
+    });
+    
         // Add event listeners to adopt buttons
         document.querySelectorAll('.adopt-pet').forEach(button => {
             button.addEventListener('click', function() {
