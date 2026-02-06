@@ -3,6 +3,147 @@ You are required to build your folder structures for your project.
 # Starter Repository for Assignment
 You are required to build your folder structures for your project.
 
+Digital Pet Guardian is a gamified wellness web application designed to encourage users to build healthy daily habits through interactive challenges and a virtual pet system.
+By completing wellness challenges, users earn points which can be used to adopt and care for digital pets. This system combines habit-building, gamification, and reward mechanics to motivate consistent positive behaviour.
+
+The project was developed as part of ST0503 Backend Web Development CA2, focusing on secure backend implementation, RESTful APIs, and frontend-backend integration using JWT authentication.
+
+🎯 Key Features
+👤 User Authentication & Security
+
+User registration and login using bcrypt password hashing
+
+Secure session handling using JSON Web Tokens (JWT)
+
+Protected routes to prevent unauthorised actions
+
+Users can only manage their own profile, pets, and actions
+
+🧩 Wellness Challenges
+
+Users can view a list of wellness challenges (public access)
+
+Logged-in users can complete challenges and submit reflections
+
+Completing challenges rewards users with points
+
+Loyalty bonus: users who own pets earn additional benefits when completing challenges
+
+🐶 Digital Pet System
+
+Users can adopt pets using earned points
+
+Each pet has:
+
+Hunger level
+
+Experience (XP)
+
+Level progression
+
+Pets gain XP when users complete challenges or are fed
+
+Pet hunger decreases when challenges are completed, encouraging regular care
+
+🍖 Food & Instant Feeding System
+
+Users can browse available food items
+
+Each food has:
+
+Cost
+
+Hunger restoration value
+
+XP gain
+
+When food is purchased, it is instantly fed to the selected pet
+
+Feeding restores hunger and increases pet XP
+
+No food inventory is stored (instant feed system)
+
+📈 Level & Progression
+
+Pets level up automatically when XP thresholds are met
+
+Higher pet levels reflect greater user engagement
+
+Levels are defined with increasing XP requirements
+
+🏆 Leaderboard
+
+Public leaderboard showing top users
+
+Ranking criteria:
+
+Highest pet level
+
+Highest pet experience
+
+Only users who own pets appear on the leaderboard
+
+🖥️ Frontend Integration
+
+Built using HTML5, CSS3, Bootstrap 5, and Vanilla JavaScript
+
+Uses fetch API to communicate with backend endpoints
+
+Dynamic UI behaviour:
+
+Guests can browse content but cannot perform actions
+
+Logged-in users gain access to challenge completion, pet adoption, and feeding
+
+Authentication state is managed using localStorage
+
+🛠️ Backend Technologies
+
+Node.js
+
+Express.js
+
+MySQL
+
+JWT for authentication
+
+bcrypt for password hashing
+
+RESTful API architecture
+
+Callback-based controllers and models (no async/await)
+
+🗂️ Database Design
+
+Main tables include:
+
+User
+
+WellnessChallenge
+
+UserCompletion
+
+Pet
+
+UserPet
+
+Food
+
+Level
+
+The database design supports secure user management, challenge tracking, pet progression, and instant feeding mechanics.
+
+🌱 Purpose & Motivation
+
+This application aims to:
+
+Encourage healthier lifestyle habits
+
+Use gamification to increase engagement
+
+Demonstrate secure backend development practices
+
+Showcase full-stack integration between frontend and backend
 
 <!-- Pet Guardian Gamification System -->
 The objective of the Pet Guardian game is to encourage users to complete challenges in order to earn points that can be used to adopt a pet, care for them and to take care of their digital pet.
