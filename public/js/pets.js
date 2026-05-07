@@ -1,9 +1,12 @@
+// loading food from backend
+// loading user points
 document.addEventListener("DOMContentLoaded", function () {
     const token = localStorage.getItem("token");
+
     let userId = null;
-    let userPoints = 0;
-    let userPet = null;
-    let currentPetToAdopt = null;
+    let userPoints = 0; // user points
+    let userPet = null; // store user pet
+    let currentPetToAdopt = null; // store pet that is adopted
 
     // DOM Elements
     const loginHint = document.getElementById("loginHint");
@@ -38,11 +41,15 @@ document.addEventListener("DOMContentLoaded", function () {
     if (token) {
         const payload = token.split('.')[1];
         userId = JSON.parse(atob(payload)).userId;
+        // load user points
         loadUserData();
+        // load user current pets
         loadUserPet();
         pointsTracker.classList.remove("d-none");
     } else {
+        // show login hint
         loginHint.classList.remove("d-none");
+        // hide points tracker
         pointsTracker.classList.add("d-none");
     }
 
@@ -63,10 +70,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Load user's pet (to check if they already have one)
     function loadUserPet() {
+        // exit if no userid
         if (!userId) return;
         
         fetchMethod(currentUrl + "/api/userpet/" + userId, (status, data) => {
             if (status === 200 && data.length > 0) {
+                // store user pet so only 1 user 1 pet
                 userPet = data[0];
             } else {
                 userPet = null;
@@ -87,24 +96,32 @@ document.addEventListener("DOMContentLoaded", function () {
         }, "GET");
     }
 
-    // Display pets (similar to challenges.js)
+    // Display pets similar to challenges.js and food.js
     function displayPets(pets) {
+        // clear container before adding content
         petsContainer.innerHTML = "";
         
+        // loops thru each pet in the array
         pets.forEach(pet => {
             const col = document.createElement("div");
             col.className = "col-md-6 col-lg-4 mb-4";
             
             // Get emoji for this pet
             const emoji = petEmojis[pet.species] || '🐾';
+            // check if pet is owned by user
             const isUsersPet = userPet && userPet.pet_id == pet.pet_id;
+            // check if user can afford to adopt the pet
             const canAfford = userPoints >= pet.adopt_cost;
             
+            // html card for pet
             col.innerHTML = `
                 <div class="card h-100 text-center ${isUsersPet ? 'border-success border-2' : ''}">
                     <div class="card-body d-flex flex-column">
+                    <!-- emoji -->
                         <div class="display-4 text-primary mb-3">${emoji}</div>
+                        <!-- pet species -->
                         <h5 class="card-title fw-bold">${pet.species}</h5>
+                        <!-- adoption cost -->
                         <p class="card-text flex-grow-1">Adoption cost: ${pet.adopt_cost} points</p>
                         
                         ${isUsersPet ? 
@@ -123,11 +140,11 @@ document.addEventListener("DOMContentLoaded", function () {
                                 `<button class="btn btn-outline-primary w-100" disabled>
                                     Login to Adopt
                                 </button>` :
-                                userPet ? // FIX: Check if user has ANY pet, not just this specific pet
+                                userPet ? // if user have pet
                                 `<button class="btn btn-secondary w-100" disabled>
                                     Already Have Pet
                                 </button>` :
-                                !canAfford ?
+                                !canAfford ? // if cant afford
                                 `<button class="btn btn-secondary w-100" disabled>
                                     Need ${pet.adopt_cost} points (you have ${userPoints})
                                 </button>` :
@@ -142,16 +159,20 @@ document.addEventListener("DOMContentLoaded", function () {
                     </div>
                 </div>
             `;
-            
+            // add column to container
             petsContainer.appendChild(col);
     });
     
         // Add event listeners to adopt buttons
         document.querySelectorAll('.adopt-pet').forEach(button => {
             button.addEventListener('click', function() {
+                // get pet id 
                 const petId = this.getAttribute('data-id');
+                // get cost
                 const cost = parseInt(this.getAttribute('data-cost'));
+                // get species
                 const species = this.getAttribute('data-species');
+                // open adoption modal
                 openAdoptModal(petId, cost, species);
             });
         });
@@ -159,12 +180,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Open adopt modal
     function openAdoptModal(petId, cost, species) {
+        // store current pet info
         currentPetToAdopt = { id: petId, cost: cost, species: species };
         
         // Check if user already has a pet
         if (userPet) {
             showAdoptError("You already have a pet. Only one pet per user.");
-            adoptModal.show();
+            adoptModal.show(); // shows modal but with error
             return;
         }
         
@@ -179,9 +201,11 @@ document.addEventListener("DOMContentLoaded", function () {
         modalPetEmoji.textContent = petEmojis[species] || '🐾';
         modalPetSpecies.textContent = species;
         modalPetCost.textContent = cost;
+        // clears pet name input
         petNameInput.value = "";
+        // hides error
         hideAdoptError();
-        
+        // shows modal
         adoptModal.show();
         petNameInput.focus();
     }
@@ -189,13 +213,16 @@ document.addEventListener("DOMContentLoaded", function () {
     // Adopt form submit
     document.getElementById("adoptForm").addEventListener("submit", function(e) {
         e.preventDefault();
+        // hide any previous erros
         hideAdoptError();
         
+        // checks if user is logged in  
         if (!token || !currentPetToAdopt) {
             showAdoptError("Please login first");
             return;
         }
         
+        // check if pet name is provided
         if (!petNameInput.value.trim()) {
             showAdoptError("Please give your pet a name");
             return;
@@ -212,6 +239,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
             
+            // hides modal when successful
             adoptModal.hide();
             showSuccess(`Congratulations! You adopted ${petNameInput.value}!`);
             

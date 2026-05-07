@@ -142,7 +142,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 
                 // Update pet info
                 if (response.pet && response.pet.length > 0) {
+                    // stores the first pet
                     userPet = response.pet[0];
+                    // update pet info display
                     updatePetInfo();
                     petSection.classList.remove("d-none");
                     noPetSection.classList.add("d-none");
@@ -152,6 +154,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         editPetNameBtn.classList.remove("d-none");
                     }
                 } else {
+                    // if no pet data clear 
                     userPet = null;
                     petSection.classList.add("d-none");
                     noPetSection.classList.remove("d-none");
@@ -165,9 +168,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 // Update inventory
                 if (response.inventory && response.inventory.length > 0) {
                     inventoryData = response.inventory;
+                    // display inventory items  
                     displayInventory();
                     inventoryEmpty.classList.add("d-none");
                 } else {
+                    // if no inventory data show empty message
                     inventoryData = [];
                     inventoryEmpty.classList.remove("d-none");
                 }
@@ -197,6 +202,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 // Find user in leaderboard
                 for (let i = 0; i < data.length; i++) {
                     if (data[i].user_id == userId) {
+                        // set ranking
                         ranking.textContent = "#" + (i + 1);
                         return;
                     }
@@ -242,12 +248,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 day: 'numeric'
             });
         } else {
+            // if creation date unknown
             createdOn.textContent = "Unknown";
         }
     }
 
     // Update pet info display
     function updatePetInfo() {
+        // exit if no pet data
         if (!userPet) return;
         
         // Set pet emoji based on species
@@ -306,8 +314,9 @@ document.addEventListener("DOMContentLoaded", function () {
             inventoryEmpty.classList.remove("d-none");
             return;
         }
-        
+        // loop thru inventory data
         for (let i = 0; i < inventoryData.length; i++) {
+            // ger current food
             const item = inventoryData[i];
             
             const col = document.createElement("div");

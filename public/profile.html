@@ -101,10 +101,12 @@
                 <div class="row mb-4">
                   <div class="col-md-6">
                     <h6 class="text-muted">Username</h6>
+                    <!-- username display/ updated by js -->
                     <h4 id="username" class="fw-bold">Loading...</h4>
                   </div>
                   <div class="col-md-6">
                     <h6 class="text-muted">Email</h6>
+                    <!-- email display/ updated by js -->
                     <h4 id="email" class="fw-bold">Loading...</h4>
                   </div>
                 </div>
@@ -112,11 +114,13 @@
                 <div class="row mb-4">
                   <div class="col-md-6">
                     <h6 class="text-muted">Member Since</h6>
+                    <!-- member display/ updated by js -->
                     <h5 id="createdOn" class="fw-bold">Loading...</h5>
                   </div>
                   <div class="col-md-6">
                     <h6 class="text-muted">Current Points</h6>
                     <h5 class="fw-bold">
+                      <!-- points display/ updated by js -->
                       <span id="points" class="badge bg-success fs-4">0</span> points
                     </h5>
                   </div>
@@ -126,21 +130,25 @@
                   <div class="col-md-6">
                     <h6 class="text-muted">Challenges Completed</h6>
                     <h5 class="fw-bold">
+                      <!-- challenges completed display/ updated by js -->
                       <span id="completedChallenges" class="badge bg-info fs-4">0</span>
                     </h5>
                   </div>
                   <div class="col-md-6">
                     <h6 class="text-muted">Total Points Earned</h6>
                     <h5 class="fw-bold">
+                      <!-- total points display/ updated by js -->
                       <span id="totalPoints" class="badge bg-warning fs-4">0</span> points
                     </h5>
                   </div>
                 </div>
                 
                 <div class="mt-4 pt-3 border-top">
+                  <!-- edit profile like username or password -->
                   <button id="editProfileBtn" class="btn btn-warning me-3">
                     ✏️ Edit Profile
                   </button>
+                  <!-- delete account -->
                   <button id="deleteAccountBtn" class="btn btn-outline-danger">
                     🗑️ Delete Account
                   </button>
@@ -149,6 +157,7 @@
             </div>
           </div>
           
+          <!-- mini ranking section -->
           <div class="col-md-4">
             <div class="card h-100 text-center">
               <div class="card-body d-flex flex-column">
@@ -156,6 +165,7 @@
                 <h5 class="card-title fw-bold">Ranking</h5>
                 <p class="card-text">Your position among other pet guardians</p>
                 <div class="mt-3">
+                  <!-- ranking/ updated by js -->
                   <span class="badge bg-primary fs-1" id="ranking">-</span>
                   <p class="text-muted mb-0">Leaderboard Position</p>
                 </div>
@@ -171,9 +181,11 @@
             <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
               <h4 class="mb-0 fw-bold" id="petHeader">Pet Name</h4>
               <div>
+                <!-- edit pet name -->
                 <button id="editPetNameBtn" class="btn btn-outline-light btn-sm me-2 d-none">
                   ✏️ Edit Name
                 </button>
+                <!-- release pet forever -->
                 <button id="releasePetBtn" class="btn btn-outline-light btn-sm">
                   🚫 Release Pet
                 </button>
@@ -182,19 +194,23 @@
             <div class="card-body">
               <div class="row align-items-center">
                 <div class="col-md-2 text-center">
+                  <!-- pet emoji/ updated by js -->
                   <div class="display-1" id="petEmoji">🐾</div>
                 </div>
                 <div class="col-md-10">
                   <div class="row">
                     <div class="col-md-4">
+                      <!-- pet name display/ updated by js -->
                       <h6 class="text-muted">Pet Name</h6>
                       <h4 id="petName" class="fw-bold">Loading...</h4>
                     </div>
                     <div class="col-md-4">
+                      <!-- pet species display/ updated by js -->
                       <h6 class="text-muted">Species</h6>
                       <h4 id="petSpecies" class="fw-bold">Loading...</h4>
                     </div>
                     <div class="col-md-4">
+                      <!-- pet adoption status display/ updated by js -->
                       <h6 class="text-muted">Adopted On</h6>
                       <h5 id="petAdoptedOn" class="fw-bold">Loading...</h5>
                     </div>
@@ -203,31 +219,38 @@
                   <div class="row mt-4">
                     <div class="col-md-3">
                       <h6 class="text-muted">Level</h6>
+                      <!-- pet level display/ updated by js -->
                       <span id="petLevel" class="badge bg-primary fs-5">Level 1</span>
                     </div>
                     <div class="col-md-3">
+                      <!-- pet experience points/ updated by js -->
                       <h6 class="text-muted">Experience</h6>
                       <span id="petExperience" class="badge bg-success fs-5">0 XP</span>
                     </div>
                     <div class="col-md-3">
+                      <!-- pet hunger display/ updated by js -->
                       <h6 class="text-muted">Hunger</h6>
                       <div class="d-flex align-items-center">
                         <div class="progress flex-grow-1 me-2" style="height: 20px;">
+                          <!-- pet hunger bar display/ updated by js -->
                           <div id="petHungerBar" class="progress-bar bg-warning" style="width: 100%;">100%</div>
                         </div>
                         <span id="petHunger" class="badge">100%</span>
                       </div>
                     </div>
                     <div class="col-md-3">
+                      <!-- pet bonus display/ updated by js -->
                       <h6 class="text-muted">Bonus</h6>
                       <span id="petBonus" class="badge bg-info fs-5">10%</span>
                     </div>
                   </div>
                   
                   <div class="mt-4 pt-3 border-top">
+                    <!-- feed pet button -->
                     <button id="feedPetBtn" class="btn btn-success me-3">
                       🍖 Feed Pet
                     </button>
+                    <!-- level up pet button -->
                     <button id="levelUpPetBtn" class="btn btn-primary">
                       ⬆️ Level Up Pet
                     </button>
@@ -238,7 +261,7 @@
           </div>
         </div>
 
-        <!-- No Pet Message -->
+        <!-- No Pet Message only for user without pets -->
         <div id="noPetSection" class="d-none mb-5">
           <div class="card text-center">
             <div class="card-body py-5">
@@ -260,6 +283,7 @@
               <h4 class="mb-0 fw-bold">Food Items</h4>
             </div>
             <div class="card-body">
+              <!-- empty inventory -->
               <div id="inventoryEmpty" class="text-center py-5 d-none">
                 <div class="display-1 text-muted mb-3">🛒</div>
                 <h4 class="card-title fw-bold">Inventory Empty</h4>
@@ -285,24 +309,30 @@
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
+            <!-- editing profile for username and password -->
             <h5 class="modal-title fw-bold">Edit Profile</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
+            <!-- error handling -->
             <div id="editProfileError" class="alert alert-danger d-none mb-3"></div>
             <form id="editProfileForm">
               <div class="mb-3">
+                <!-- editint username -->
                 <label class="form-label fw-bold">Username</label>
                 <input type="text" class="form-control" id="editUsername" required>
               </div>
               <div class="mb-3">
+                <!-- changing password -->
                 <label class="form-label fw-bold">New Password (leave blank to keep current)</label>
                 <input type="password" class="form-control" id="newPassword">
               </div>
+              <!-- verifying password -->
               <div class="mb-3">
                 <label class="form-label fw-bold">Confirm New Password</label>
                 <input type="password" class="form-control" id="confirmPassword">
               </div>
+              <!-- passowrd required to edit user profile -->
               <div class="mb-4">
                 <label class="form-label fw-bold">Current Password (required)</label>
                 <input type="password" class="form-control" id="currentPassword" required>
@@ -319,13 +349,15 @@
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
+            <!-- editing pet name -->
             <h5 class="modal-title fw-bold">Edit Pet Name</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
+            <!-- error handling -->
             <div id="editPetNameError" class="alert alert-danger d-none mb-3"></div>
             <form id="editPetNameForm">
-              <div class="mb-4">
+              <div class="mb-4">  
                 <label class="form-label fw-bold">New Pet Name</label>
                 <input type="text" class="form-control" id="newPetName" required>
               </div>
@@ -345,21 +377,26 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
+            <!-- error handling -->
             <div id="feedPetError" class="alert alert-danger d-none mb-3"></div>
             
             <div class="card mb-4">
               <div class="card-body">
+                <!-- pet status -->
                 <h6 class="card-subtitle mb-2 text-muted">Current Status</h6>
                 <div class="row">
                   <div class="col-4">
                     <small>Hunger:</small>
+                    <!-- hunger display/ updated by js -->
                     <div id="currentHunger" class="fw-bold">100%</div>
                   </div>
                   <div class="col-4">
+                    <!-- experience display/ updated by js -->
                     <small>Experience:</small>
                     <div id="currentExperience" class="fw-bold">0 XP</div>
                   </div>
                   <div class="col-4">
+                    <!-- level display/ updated by js -->
                     <small>Level:</small>
                     <div id="currentLevel" class="fw-bold">Level 1</div>
                   </div>
@@ -369,6 +406,7 @@
             
             <form id="feedPetForm">
               <div class="mb-3">
+                <!-- food dropdown/ updated by js -->
                 <label class="form-label fw-bold">Select Food</label>
                 <select class="form-select" id="foodSelect" required>
                   <option value="">Choose food from inventory...</option>
@@ -381,10 +419,12 @@
                   <h6 class="card-subtitle mb-2 text-muted">Preview</h6>
                   <div class="row">
                     <div class="col-6">
+                      <!-- hunger restore display/ updated by js -->
                       <small>Hunger Restore:</small>
                       <div id="previewHunger" class="fw-bold">0</div>
                     </div>
                     <div class="col-6">
+                      <!-- xp gain display/ updated by js -->
                       <small>XP Gain:</small>
                       <div id="previewXP" class="fw-bold">0</div>
                     </div>
@@ -393,6 +433,7 @@
               </div>
               
               <div class="mb-4">
+                <!-- input quantity -->
                 <label class="form-label fw-bold">Quantity</label>
                 <input type="number" class="form-control" id="feedQuantity" min="1" value="1" required>
                 <div class="form-text" id="previewTotal"></div>
@@ -414,9 +455,11 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
+            <!-- error handling -->
             <div id="levelUpError" class="alert alert-danger d-none mb-3"></div>
             
             <div class="text-center mb-4">
+              <!-- pet status display/ updated by js -->
               <div id="levelUpEmoji" class="display-1 mb-3">🐾</div>
               <h4 id="levelUpPetName" class="fw-bold">Your Pet</h4>
               <p class="text-muted" id="currentLevelText">Level 1</p>
@@ -427,20 +470,23 @@
                 <h6 class="card-subtitle mb-2 text-muted">Level Up Requirements</h6>
                 <div class="row mb-3">
                   <div class="col-6">
+                    <!-- current xp display/ updated by js -->
                     <small>Current Experience:</small>
                     <div id="currentExpValue" class="fw-bold">0 XP</div>
                   </div>
                   <div class="col-6">
+                    <!-- xp required display/ updated by js -->
                     <small>Required for Next Level:</small>
                     <div id="requiredExpValue" class="fw-bold">100 XP</div>
                   </div>
                 </div>
                 <div class="alert alert-info py-2">
+                  <!-- experience required display/ updated by js -->
                   <small>Experience needed: <span id="expNeeded" class="fw-bold">100 XP</span></small>
                 </div>
               </div>
             </div>
-            
+            <!-- errorhandling for required points/ updated by js -->
             <button id="confirmLevelUpBtn" class="btn btn-primary w-100" disabled>
               Need 100 more XP
             </button>

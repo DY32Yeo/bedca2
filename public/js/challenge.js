@@ -1,4 +1,8 @@
-// challenge.js
+// loading challenge from backend
+// loading user points + completion count
+// creating challenge
+// editing/ deleting challenge
+// cooldown system so cannot spam challenge completion
 document.addEventListener("DOMContentLoaded", function () 
 {
     const token = localStorage.getItem("token");
@@ -14,19 +18,21 @@ document.addEventListener("DOMContentLoaded", function ()
     }
 
     // Get DOM elements
+    // login reminder
     const loginHint = document.getElementById("loginHint");
+    // create button
     const createBtn = document.getElementById("createBtn");
+    // card container
     const challengesContainer = document.getElementById("challengesContainer");
     const errorMsg = document.getElementById("errorMsg");
     const successMsg = document.getElementById("successMsg");
 
-    // REMOVED: Timer elements (no longer needed)
-    // const coolDownAlert = document.getElementById("coolDownAlert");
-    // const cooldownTimer = document.getElementById("cooldownTimer");
-
     // Stats elements
+    // challenge counter
     const totalCompleted = document.getElementById("totalCompleted");
+    // points counter   
     const totalPoints = document.getElementById("totalPoints");
+    // challenge created counter
     const createdChallenges = document.getElementById("createdChallenges");
     
     // Modals
@@ -55,7 +61,9 @@ document.addEventListener("DOMContentLoaded", function ()
     const completeError = document.getElementById("completeError");
     const manageError = document.getElementById("manageError");
 
+    // selected challenge
     let currentChallengeId = null;
+    // completion count
     let userCompletions = {};
     let allChallenges = [];
     let userTotalPoints = 0;
@@ -78,26 +86,31 @@ document.addEventListener("DOMContentLoaded", function ()
         loadAllChallengeCooldowns();
     }
 
+    // cooldown function
     function loadAllChallengeCooldowns() {
+        // if userId missing, cooldown doesnt run
         if (!userId) return;
         
         challengeCooldowns = {};
         
         // Start interval for updating button displays
         if (cooldownInterval) clearInterval(cooldownInterval);
+        // cooldown is updated every second
         cooldownInterval = setInterval(updateAllChallengeCooldowns, 1000);
     }
-    
+    // start cooldown for specific challenge    
     function startChallengeCooldown(challengeId) {
+        // if not logged in or no challengeId, do nothing
         if (!userId || !challengeId) return;
-        
+        // cooldown timer
         const cooldownEndTime = Date.now() + (COOLDOWN_MINUTES * 60 * 1000);
         challengeCooldowns[challengeId] = cooldownEndTime;
         
         updateChallengeButton(challengeId);
     }
-    
+    // checking if challenge is on cooldown 
     function isChallengeOnCooldown(challengeId) {
+        // if no challengeId or no end time stored so no cooldown
         if (!challengeId || !challengeCooldowns[challengeId]) return false;
         
         const now = Date.now();
@@ -134,7 +147,7 @@ document.addEventListener("DOMContentLoaded", function ()
         updateChallengeButton(challengeId);
         return true;
     }
-    
+    // updating button based on cooldown status
     function updateChallengeButton(challengeId) {
         const button = document.querySelector(`.complete-challenge[data-id="${challengeId}"]`);
         if (!button) return;
@@ -144,6 +157,7 @@ document.addEventListener("DOMContentLoaded", function ()
         const completionCount = userCompletions[challengeId] || 0;
         
         if (isCooldownActive) {
+            // button is disabled and shows timer
             const remaining = getRemainingCooldownTime(challengeId);
             const minutes = Math.floor(remaining / 60000);
             const seconds = Math.floor((remaining % 60000) / 1000);
@@ -156,7 +170,6 @@ document.addEventListener("DOMContentLoaded", function ()
             // Button is available
             button.disabled = false;
             
-            // ========= CHANGED: Removed "Again" from button text =========
             // Just show "Complete" regardless of previous completions
             button.textContent = 'Complete';
             button.classList.remove('btn-secondary');
@@ -174,7 +187,7 @@ document.addEventListener("DOMContentLoaded", function ()
     function loadUserData() {
         if (!userId) return;
         
-        // 1. First get user's total points
+        //  get user's total points
         const userPointsCallback = (status, data) => {
             if (status === 200) {
                 userTotalPoints = data.points || 0;
@@ -202,6 +215,7 @@ document.addEventListener("DOMContentLoaded", function ()
                 userCompletions = {};
                 let totalChallengesCompleted = 0;
                 
+                // check through each completion record
                 for (let i = 0; i < data.length; i++) {
                     const challengeId = data[i].challenge_id;
                     const completionCount = data[i].completion_count || 1;
@@ -226,7 +240,7 @@ document.addEventListener("DOMContentLoaded", function ()
                 showError(errorMsg, data.message || "Failed to load challenges");
                 return;
             }
-            
+            // store challenges
             allChallenges = data;
             
             // Count user's created challenges
@@ -248,8 +262,9 @@ document.addEventListener("DOMContentLoaded", function ()
 
     // Display challenges on page
     function displayChallenges() {
+        // clear container
         challengesContainer.innerHTML = "";
-        
+        // loops through all challenges
         for (let i = 0; i < allChallenges.length; i++) {
             const challenge = allChallenges[i];
             const challengeId = challenge.challenge_id;
@@ -258,11 +273,11 @@ document.addEventListener("DOMContentLoaded", function ()
             
             const isOnCooldown = isChallengeOnCooldown(challengeId);
             const canComplete = token && !isOnCooldown;
-
+            // creat card column
             const col = document.createElement("div");
             col.className = "col-md-6 col-lg-4 mb-4";
             
-            // ========= UPDATED: Simple button text =========
+            // determine button text and style
             let buttonText = 'Complete';
             let buttonClass = 'btn-primary';
             
@@ -280,7 +295,7 @@ document.addEventListener("DOMContentLoaded", function ()
                 buttonText = 'Complete';
                 buttonClass = 'btn-success';
             }
-            
+            // create card 
             col.innerHTML = `
                 <div class="card h-100 text-center ${completionCount > 0 ? 'border-success border-2' : ''}">
                     <div class="card-body d-flex flex-column">
@@ -360,7 +375,7 @@ document.addEventListener("DOMContentLoaded", function ()
 
         challengeText.textContent = challenge.description;
         challengePoints.textContent = challenge.points + " points";
-
+        // show creator badge if user created this challenge
         if (challenge.creator_id == userId) {
             challengeCreatorBadge.classList.remove("d-none");
         } else {
@@ -394,7 +409,7 @@ document.addEventListener("DOMContentLoaded", function ()
             showError(errorMsg, "Please login to create challenges");
             return;
         }
-        
+        // reset create form
         descriptionInput.value = "";
         pointsInput.value = "20";
         hideError(createError);

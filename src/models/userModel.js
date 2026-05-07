@@ -90,9 +90,8 @@ module.exports.selectRank = (callback) =>
             From UserCompletion
             WHERE UserCompletion.user_id = User.user_id
         ) AS total_completed,
-
+    
         User.points AS total_points_earned,
-
 
         (
             SELECT UserPet.pet_name 
@@ -115,7 +114,7 @@ module.exports.selectRank = (callback) =>
         FROM UserPet
         WHERE UserPet.user_id = User.user_id
     )
-
+        
     AND EXISTS (
         SELECT 1
         FROM UserCompletion

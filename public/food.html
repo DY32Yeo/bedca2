@@ -94,6 +94,7 @@
             <!-- Points Tracker -->
             <div id="pointsTracker" class="d-none">
               <div class="badge bg-primary fs-5 px-4 py-3 rounded-pill shadow-sm">
+                <!-- updated by js -->
                 💰 Points: <span class="fw-bold" id="userPoints">0</span>
               </div>
             </div>
@@ -113,8 +114,8 @@
         <section class="mb-5 mt-5">
           <h2 class="mb-4 display-5 fw-bold text-center">Available Food Items</h2>
           <p class="text-muted text-center mb-4">All food items restore hunger and give XP to your pet</p>
+          <!-- food will be loaded -->
           <div class="row g-4" id="foodContainer">
-            <!-- Food will be loaded here -->
           </div>
         </section>
       </div>
@@ -131,36 +132,46 @@
           <div class="modal-body">
             <div id="buyError" class="alert alert-danger d-none mb-3"></div>
             <div class="text-center mb-4">
+              <!-- food info -->
               <div id="modalFoodEmoji" class="display-1 mb-3">🥛</div>
               <h4 id="modalFoodName" class="fw-bold"></h4>
+              <!-- updated by js -->
               <p class="text-muted">Cost: <span id="modalFoodCost">0</span> points each</p>
             </div>
+            <!-- buy food form -->
             <form id="buyForm">
               <div class="mb-4">
                 <label class="form-label fw-bold">Quantity</label>
+                <!-- quantity input option  -->
                 <input type="number" class="form-control" id="quantityInput" min="1" value="1" required>
                 <div class="form-text">How many do you want to buy?</div>
               </div>
               <div class="mb-4 p-3 bg-light rounded">
+                <!-- summary details -->
                 <h6 class="fw-bold">Purchase Summary</h6>
                 <div class="d-flex justify-content-between mb-2">
+                  <!-- cost for food/ updated by js -->
                   <span>Unit Cost:</span>
                   <span id="summaryUnitCost">0 points</span>
                 </div>
                 <div class="d-flex justify-content-between mb-2">
+                  <!-- shows quantity in summary/ updated by js -->
                   <span>Quantity:</span>
                   <span id="summaryQuantity">1</span>
                 </div>
                 <div class="d-flex justify-content-between mb-2">
+                  <!-- total cost for food/ updated by js -->
                   <span>Total Cost:</span>
                   <span id="summaryTotalCost">0 points</span>
                 </div>
+                <!-- current points/ updated by js -->
                 <div class="d-flex justify-content-between mb-2">
                   <span>Your Points:</span>
                   <span id="summaryUserPoints">0 points</span>
                 </div>
-                <hr>
+                <hr> <!-- horizontal divider-->
                 <div class="d-flex justify-content-between fw-bold">
+                  <!-- shows remaining points for buying food/ updated by js -->
                   <span>Remaining Points:</span>
                   <span id="summaryRemaining">0 points</span>
                 </div>

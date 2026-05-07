@@ -103,6 +103,7 @@
 
             <div id="pointsTracker" class="d-none">
             <div class="badge bg-primary fs-5 px-4 py-3 rounded-pill shadow-sm">
+              <!-- updated in js -->
                 💰 Points: <span class="fw-bold" id="userPoints">0</span>
             </div>
             </div>
@@ -138,15 +139,21 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
+            <!-- error handling -->
             <div id="adoptError" class="alert alert-danger d-none mb-3"></div>
             <div class="text-center mb-4">
+              <!-- pet emoji/ updated by js-->
               <div id="modalPetEmoji" class="display-1 mb-3">🐕</div>
+              <!-- pet species/ updated by js -->
               <h4 id="modalPetSpecies" class="fw-bold"></h4>
+              <!-- cost/ updated by js -->
               <p class="text-muted">Cost: <span id="modalPetCost">0</span> points</p>
             </div>
+            <!-- pet adoption form -->
             <form id="adoptForm">
               <div class="mb-4">
                 <label class="form-label fw-bold">Give Your Pet a Name</label>
+                <!-- input pet name -->
                 <input type="text" class="form-control" id="petNameInput" placeholder="e.g., Max, Luna, Charlie..." required>
               </div>
               <button type="submit" class="btn btn-success w-100 py-2">Adopt Pet</button>
